@@ -1,0 +1,3 @@
+*.pyc
+db/dev.sqlite3
+sitestatic/*

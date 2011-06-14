@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<title>{% block title %}{% endblock %}</title>
+		{% block import %}{% endblock %}
+		<link rel="stylesheet" href="{{ STATIC_URL }}css/style.css" type="text/css" media="all">
+		{% block js_base %}{% endblock %}
+	</head>
+	<body>
+		<div class="header">
+			{% if user.is_authenticated %}
+				Welcome, {{ user.username }}. <a href="/accounts/logout/">Log out</a>
+			{% else %}
+				<a href="/accounts/login/">Log in</a>
+			{% endif %}
+		</div>
+		<div class="main">
+			{% if messages %}
+				<div class="messages">
+					<ul>
+						{% for message in messages %}
+							<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+						{% endfor %}
+					</ul>
+				</div>
+			{% endif %}
+			{% block main %}{% endblock %}
+			{% block js %}{% endblock %}
+		<div class="footer">
+		</div>
+	</body>
+</html>
