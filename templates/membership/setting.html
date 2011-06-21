@@ -1,0 +1,23 @@
+{% extends 'base_authenticated.html' %}
+
+{% block title %}Account Settings{% endblock %}
+
+{% block main %}
+	<div>
+		<form method="POST">
+			<div>
+				<span>Membership Type:</span>
+				<div>
+					<input type="radio" id="consumer" name="membership_type" value="reader" checked />
+					<label for="reader">Reader (Free)</label>
+				</div>
+				<div>
+					<input type="radio" id="provider" name="membership_type" value="publisher" />
+					<label for="publisher">Publisher ($100/year)</label>
+				</div>
+			</div>
+			<input type="submit" value="Save" />
+			{% csrf_token %}
+		</form>
+	</div>
+{% endblock %}

@@ -1,8 +1,9 @@
+{% load custom_tags %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 	<head>
-		<title>{% block title %}{% endblock %}</title>
+		<title>{% site_title %} | {% block head_title %}{% endblock %}</title>
 		{% block import %}{% endblock %}
 		<link rel="stylesheet" href="{{ STATIC_URL }}css/style.css" type="text/css" media="all">
 		{% block js_base %}{% endblock %}
@@ -16,6 +17,7 @@
 			{% endif %}
 		</div>
 		<div class="main">
+			<h1>{% block page_title %}{% endblock %}</h1>
 			{% if messages %}
 				<div class="messages">
 					<ul>
@@ -27,6 +29,7 @@
 			{% endif %}
 			{% block main %}{% endblock %}
 			{% block js %}{% endblock %}
+		</div>
 		<div class="footer">
 		</div>
 	</body>

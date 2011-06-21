@@ -1,0 +1,19 @@
+{% extends 'base_authenticated.html' %}
+
+{% block head_title %}Create Publisher{% endblock %}
+{% block page_title %}Create Publisher{% endblock %}
+
+{% block main %}
+	<form method="POST">
+		{{ form.non_field_errors }}
+		<div>
+			<label for="id_name">Name:</label><br />
+			{{ form.name }}
+			{{ form.name.errors }}
+		</div>
+		<div>
+			<input type="submit" value="Save" />
+		</div>
+		{% csrf_token %}
+	</form>
+{% endblock %}

@@ -117,9 +117,12 @@ INSTALLED_APPS = (
 
     'registration',
 
-    'openreader.core',
-    #'openreader.membership',
-    #'openreader.mediahandler',
+    'openreader.common',
+    'openreader.membership',
+    'openreader.subscription',
+    'openreader.publication',
+    'openreader.discovery',
+    'openreader.statistic',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -152,10 +155,12 @@ AUTH_PROFILE_MODULE = 'membership.Profile'
 EMAIL_HOST = '127.0.0.1'
 EMAIL_PORT = '1025'
 
-LOGIN_REDIRECT_URL = '/' 
-LOGIN_URL = '/login/'
-LOGOUT_URL = '/logout/'
+LOGIN_REDIRECT_URL = '/dashboard/' 
+LOGIN_URL = '/accounts/login/'
+LOGOUT_URL = '/accounts/logout/'
 
 # CUSTOM SETTINGS -------------------------------------------------------------
 
 ACCOUNT_ACTIVATION_DAYS = 1
+
+SITE_TITLE = 'OpenReader'

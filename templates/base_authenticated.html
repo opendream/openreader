@@ -1,8 +1,17 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block head_title %}{% endblock %}
 
-{% block main %}{% endblock %}
+{% block page_title %}{% endblock %}
+
+{% block main %}
+	<div class="navigation">
+		{% block navigation %}{% endblock %}
+	</div>
+	<div class="content">
+		{% block content %}{% endblock %}
+	</div>
+{% endblock %}
 
 {% block import %}{% endblock %}
 

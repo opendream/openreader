@@ -1,0 +1,14 @@
+{% extends 'base_authenticated.html' %}
+
+{% block head_title %}{{ publisher.name }}{% endblock %}
+{% block page_title %}{{ publisher.name }}{% endblock %}
+
+{% block content %}
+	{{ publisher.name }}
+{% endblock %}
+
+{% block navigation %}
+	<ul>
+		<li><a href="{% url publication-update-publisher publisher.id %}">Edit</a></li>
+	</ul>
+{% endblock %}
