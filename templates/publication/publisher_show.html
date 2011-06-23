@@ -10,5 +10,6 @@
 {% block navigation %}
 	<ul>
 		<li><a href="{% url publication-update-publisher publisher.id %}">Edit</a></li>
+		<li><a href="{% url publication-create-book publisher.id %}">Create Publication</a></li>
 	</ul>
 {% endblock %}

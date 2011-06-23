@@ -33,11 +33,28 @@ urlpatterns += patterns('membership.views',
 #)
 
 urlpatterns += patterns('publication.views',
-    url(r'^publication/upload/$', 'upload_publication', name='publication-upload'),
+    url(r'^publishers/$', 'index_publisher',
+        name='publication-index-publisher'),
+    url(r'^publishers/new/$', 'create_publisher',
+        name='publication-create-publisher'),
+    url(r'^publishers/(?P<id>\d+)/$', 'show_publisher',
+        name='publication-show-publisher'),
+    url(r'^publishers/(?P<id>\d+)/edit/$', 'update_publisher',
+        name='publication-update-publisher'),
 
-    url(r'^publisher/new/$', 'create_publisher', name='publication-create-publisher'),
-    url(r'^publisher/(?P<id>\d+)/$', 'show_publisher', name='publication-show-publisher'),
-    url(r'^publisher/(?P<id>\d+)/edit/$', 'update_publisher', name='publication-update-publisher'),
+    url(r'^publishers/(?P<publisher_id>\d+)/books/$', 'index_book',
+        name='publication-index-book'),
+    url(r'^publishers/(?P<publisher_id>\d+)/books/new/$', 'create_book',
+        name='publication-create-book'),
+    url(r'^publishers/(?P<publisher_id>\d+)/books/(?P<book_id>\d+)/$', 'show_book',
+        name='publication-show-book'),
+    url(r'^publishers/(?P<publisher_id>\d+)/books/(?P<book_id>\d+)/edit/$', 'update_book',
+        name='publication-update-book'),
+
+    #url(r'^periodicals/$', 'index_periodical', name='publication-index-periodical'),
+    #url(r'^periodicals/new/$', 'create_periodical', name='publication-create-periodical'),
+    #url(r'^periodicals/(?P<id>\d+)/$', 'show_periodical', name='publication-show-periodical'),
+    #url(r'^periodicals/(?P<id>\d+)/edit/$', 'update_periodical', name='publication-update-periodical'),
 )
 
 #urlpatterns += patterns('discovery.views',

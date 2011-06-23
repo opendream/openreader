@@ -1,0 +1,32 @@
+{% extends 'base_authenticated.html' %}
+
+{% block head_title %}Create Book{% endblock %}
+{% block page_title %}Create Book{% endblock %}
+
+{% block main %}
+	<form method="POST" enctype="multipart/form-data">
+		{{ form.non_field_errors }}
+		<div>
+			<label for="id_title">Title:</label><br />
+			{{ form.title.errors }}
+			{{ form.title }}
+		</div>
+		<div>
+			<label for="id_author">Author:</label><br />
+			{{ form.author.errors }}
+			{{ form.author }}
+		</div>
+		<div>
+			<label for="id_isbn">ISBN:</label><br />
+			{{ form.isbn.errors }}
+			{{ form.isbn }}
+		</div>
+		<div>
+			<label for="id_file_upload">File:</label><br />
+			{{ form.file_upload.errors }}
+			{{ form.file_upload }}
+		</div>
+		<input type="submit" value="Save" />
+		{% csrf_token %}
+	</form>
+{% endblock %}

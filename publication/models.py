@@ -14,6 +14,7 @@ PERIODICAL_TYPES = (
     ('2', 'Newspaper')
 )
 
+
 class Publisher(Loggable):
     owner = models.ForeignKey(User, related_name='owner')
     collaborators = models.ManyToManyField(User, related_name='collaborators')
@@ -25,7 +26,10 @@ class Publication(Loggable):
     title = models.CharField(max_length=255)
 
     class Meta:
-        abstract = True 
+        abstract = True
+
+    BOOK = '1'
+    PERIODICAL = '2'
 
 
 class Book(Publication):
@@ -42,7 +46,7 @@ class Issue(Loggable):
     issued_at = models.DateTimeField()
 
 
-class Upload(Loggable):
+class FileUpload(Loggable):
     uploader = models.ForeignKey(User)
     publication_id = models.CharField(max_length=10, db_index=True)
     publication_type = models.IntegerField(choices=PUBLICATION_TYPES, db_index=True)

@@ -1,0 +1,16 @@
+{% extends 'base_authenticated.html' %}
+
+{% block head_title %}Book: {{ book.title }}{% endblock %}
+{% block page_title %}Book: {{ book.title }}{% endblock %}
+
+{% block content %}
+	<p>Title: {{ book.title }}</p>
+	<p>Author: {{ book.author }}</p>
+	<p>ISBN: {{ book.isbn }}</p>
+{% endblock %}
+
+{% block navigation %}
+	<ul>
+		<li><a href="{% url publication-update-book book.publisher.id book.id %}">Edit</a></li>
+	</ul>
+{% endblock %}
