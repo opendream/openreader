@@ -7,6 +7,7 @@
 	<p>Title: {{ book.title }}</p>
 	<p>Author: {{ book.author }}</p>
 	<p>ISBN: {{ book.isbn }}</p>
+	<p>File: <a href="{{ book.file_path }}">download</a></p>
 {% endblock %}
 
 {% block navigation %}

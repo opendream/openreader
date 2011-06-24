@@ -162,5 +162,5 @@ LOGOUT_URL = '/accounts/logout/'
 # CUSTOM SETTINGS -------------------------------------------------------------
 
 ACCOUNT_ACTIVATION_DAYS = 1
-PUBLICATION_DIR = MEDIA_ROOT + 'publications/'
+PUBLICATION_DIR = 'publications/'
 SITE_TITLE = 'OpenReader'

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -36,6 +37,12 @@ class Book(Publication):
     author = models.CharField(max_length=100)
     isbn = models.CharField(max_length=13)
 
+    def file_path(self):
+        files = FileUpload.objects.filter(publication_type=Publication.BOOK, publication_id=self.id)
+        if files:
+            return settings.MEDIA_URL + settings.PUBLICATION_DIR + files[0].path
+        else:
+            return None
 
 class Periodical(Publication):
     periodical_type = models.IntegerField(choices=PERIODICAL_TYPES, db_index=True)
@@ -51,3 +58,6 @@ class FileUpload(Loggable):
     publication_id = models.CharField(max_length=10, db_index=True)
     publication_type = models.IntegerField(choices=PUBLICATION_TYPES, db_index=True)
     path = models.CharField(max_length=255)
+
+    def file_name(self):
+        return self.path.split('/')[-1]

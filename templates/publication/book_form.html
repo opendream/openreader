@@ -26,6 +26,9 @@
 			{{ form.file_upload.errors }}
 			{{ form.file_upload }}
 		</div>
+		{% if book_id %}
+			{{ form.book_id }}
+		{% endif %}
 		<input type="submit" value="Save" />
 		{% csrf_token %}
 	</form>
