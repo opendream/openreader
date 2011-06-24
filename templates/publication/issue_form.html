@@ -1,0 +1,25 @@
+{% extends 'base_authenticated.html' %}
+
+{% block head_title %}Create issue of {{ periodical.title }}{% endblock %}
+{% block page_title %}Create Issue of {{ periodical.title }}{% endblock %}
+
+{% block main %}
+	<form method="POST" enctype="multipart/form-data">
+		{{ form.non_field_errors }}
+		<div>
+			<label for="id_title">Issued at:</label><br />
+			{{ form.issued_at.errors }}
+			{{ form.issued_at }}
+		</div>
+		<div>
+			<label for="id_file_upload">File:</label><br />
+			{{ form.file_upload.errors }}
+			{{ form.file_upload }}
+		</div>
+		{% if issue_id %}
+			{{ form.issue_id }}
+		{% endif %}
+		<input type="submit" value="Save" />
+		{% csrf_token %}
+	</form>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base_authenticated.html' %}
+
+{% block head_title %}Create Periodical{% endblock %}
+{% block page_title %}Create Periodical{% endblock %}
+
+{% block main %}
+	<form method="POST">
+		{{ form.non_field_errors }}
+		<div>
+			<label for="id_title">Type:</label><br />
+			{{ form.periodical_type.errors }}
+			{{ form.periodical_type }}
+		</div>
+		<div>
+			<label for="id_title">Title:</label><br />
+			{{ form.title.errors }}
+			{{ form.title }}
+		</div>
+		<input type="submit" value="Save" />
+		{% csrf_token %}
+	</form>
+{% endblock %}

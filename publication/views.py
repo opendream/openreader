@@ -5,8 +5,10 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
-from publication.forms import PublisherForm, BookForm
-from publication.models import Book, Publication, Publisher, FileUpload
+from publication.forms import BookForm, PeriodicalForm, PublisherForm, \
+                              IssueForm
+from publication.models import Book, FileUpload, Publication, Publisher, \
+                               Periodical, Issue
 
 
 @login_required
@@ -38,7 +40,7 @@ def update_publisher(request, id):
         form = PublisherForm(request.POST, instance=publisher)
         if form.is_valid():
             form.save()
-            return redirect('publication-show-publisher', pk=publisher.id)
+            return redirect('publication-show-publisher', pk=id)
     else:
         form = PublisherForm(instance=publisher)
     return render(request, 'publication/publisher_form.html', {'form': form})
@@ -64,8 +66,6 @@ def create_book(request, publisher_id):
                 publication_id=book.id,
                 path=path)
             return redirect('publication-show-book', publisher_id=publisher_id, book_id=book.id)
-        else:
-            print form.errors
     else:
         form = BookForm()
     return render(request, 'publication/book_form.html', {'form': form}) 
@@ -85,15 +85,111 @@ def update_book(request, publisher_id, book_id):
             if form.cleaned_data.has_key('file_upload'):
                 file_upload = get_object_or_404(FileUpload,
                     publication_type=Publication.BOOK,
-                    publication_id=book.id)
+                    publication_id=book_id)
                 path = handle_uploaded_file(request.FILES['file_upload'],
                     file_name=file_upload.file_name(), update=True)
-                file_upload.path = path
+                file_upload.uploader = request.user # may another collaborator has updated
+                file_upload.path = path # may the file extension has been changed
                 file_upload.save() # save updated_at
             return redirect('publication-show-book', publisher_id=publisher_id, book_id=book_id)
     else:
-        form = BookForm(instance=book, initial={'book_id': book.id})
-    return render(request, 'publication/book_form.html', {'form': form, 'book_id': book.id}) 
+        form = BookForm(instance=book, initial={'book_id': book_id})
+    return render(request, 'publication/book_form.html', {'form': form, 'book_id': book_id}) 
+
+@login_required
+def index_periodical(request, publisher_id):
+    return render(request, 'publication/periodical_index.html') 
+
+@login_required
+def create_periodical(request, publisher_id):
+    if request.method == 'POST':
+        form = PeriodicalForm(request.POST)
+        if form.is_valid():
+            periodical = form.save(commit=False)
+            periodical.publisher = Publisher.objects.get(pk=publisher_id) 
+            periodical.save()
+            return redirect('publication-show-periodical', publisher_id=publisher_id,
+                periodical_id=periodical.id)
+        else:
+            print form.errors
+    else:
+        form = PeriodicalForm()
+    return render(request, 'publication/periodical_form.html', {'form': form}) 
+
+@login_required
+def show_periodical(request, publisher_id, periodical_id):
+    periodical = get_object_or_404(Periodical, pk=periodical_id)
+    return render(request, 'publication/periodical_show.html', {'periodical': periodical})
+
+@login_required
+def update_periodical(request, publisher_id, periodical_id):
+    periodical = get_object_or_404(Periodical, pk=periodical_id)
+    if request.method == 'POST':
+        form = PeriodicalForm(request.POST, instance=periodical)
+        if form.is_valid():
+            form.save()
+            return redirect('publication-show-periodical',
+                publisher_id=publisher_id, periodical_id=periodical_id)
+    else:
+        form = PeriodicalForm(instance=periodical)
+    return render(request, 'publication/periodical_form.html', {'form': form})
+
+@login_required
+def index_issue(request, publisher_id, periodical_id):
+    return redirect('publication-show-periodical',
+        publisher_id=publisher_id, periodical_id=periodical_id)
+
+@login_required
+def create_issue(request, publisher_id, periodical_id):
+    periodical = get_object_or_404(Periodical, pk=periodical_id)
+    if request.method == 'POST':
+        form = IssueForm(request.POST, request.FILES)
+        if form.is_valid():
+            issue = form.save(commit=False)
+            issue.periodical = periodical
+            issue.save()
+
+            file_name = 'u' + str(request.user.id) + '_p' + str(periodical.id) + '_s' + str(issue.id)
+            path = handle_uploaded_file(request.FILES['file_upload'],
+                file_name=file_name)
+            FileUpload.objects.create(uploader=request.user,
+                publication_type=Publication.PERIODICAL,
+                publication_id=periodical.id,
+                issue_id=issue.id,
+                path=path)
+            return redirect('publication-show-issue',
+                publisher_id=publisher_id, periodical_id=periodical_id, issue_id=issue.id)
+    else:
+        form = IssueForm()
+    return render(request, 'publication/issue_form.html', {'form': form, 'periodical': periodical})
+
+@login_required
+def show_issue(request, publisher_id, periodical_id, issue_id):
+    issue = get_object_or_404(Issue, pk=issue_id)
+    return render(request, 'publication/issue_show.html', {'issue': issue})
+
+@login_required
+def update_issue(request, publisher_id, periodical_id, issue_id):
+    issue = get_object_or_404(Issue, pk=issue_id)
+    if request.method == 'POST':
+        form = IssueForm(request.POST, request.FILES, instance=issue)
+        if form.is_valid():
+            form.save()
+            if form.cleaned_data.has_key('file_upload'):
+                file_upload = get_object_or_404(FileUpload,
+                    publication_type=Publication.PERIODICAL,
+                    publication_id=periodical_id,
+                    issue_id=issue_id)
+                path = handle_uploaded_file(request.FILES['file_upload'],
+                    file_name=file_upload.file_name(), update=True)
+                file_upload.uploader = request.user # may another collaborator has updated
+                file_upload.path = path # may the file extension has been changed
+                file_upload.save() # save updated_at
+            return redirect('publication-show-issue',
+                publisher_id=publisher_id, periodical_id=periodical_id, issue_id=issue_id)
+    else:
+        form = IssueForm(instance=issue, initial={'issue_id': issue_id})
+    return render(request, 'publication/issue_form.html', {'form': form, 'issue_id': issue_id}) 
 
 # private ----------------------------------------------------------------------
 

@@ -1,0 +1,15 @@
+{% extends 'base_authenticated.html' %}
+
+{% block head_title %}Periodical: {{ periodical.title }}{% endblock %}
+{% block page_title %}Periodical: {{ periodical.title }}{% endblock %}
+
+{% block content %}
+	<p>Title: {{ periodical.title }}</p>
+{% endblock %}
+
+{% block navigation %}
+	<ul>
+		<li><a href="{% url publication-update-periodical periodical.publisher.id periodical.id %}">Edit</a></li>
+		<li><a href="{% url publication-create-issue periodical.publisher.id periodical.id %}">Create Issue</a></li>
+	</ul>
+{% endblock %}

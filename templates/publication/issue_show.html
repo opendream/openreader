@@ -1,0 +1,16 @@
+{% extends 'base_authenticated.html' %}
+
+{% block head_title %}Issue: {{ book.title }}{% endblock %}
+{% block page_title %}Issue: {{ book.title }}{% endblock %}
+
+{% block content %}
+	<p>Title: {{ issue.periodical.title }}</p>
+	<p>Issued at: {{ issue.issued_at }}</p>
+	<p>File: <a href="{{ issue.file_path }}">download</a></p>
+{% endblock %}
+
+{% block navigation %}
+	<ul>
+		<li><a href="{% url publication-update-issue issue.periodical.publisher.id issue.periodical.id issue.id %}">Edit</a></li>
+	</ul>
+{% endblock %}
