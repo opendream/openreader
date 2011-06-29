@@ -1,0 +1,20 @@
+{% extends 'base_authenticated.html' %}
+
+{% block head_title %}Categories{% endblock %}
+{% block page_title %}Categories{% endblock %}
+
+{% block content %}
+	{% for category in categories %}
+		<div>
+			{{ category.name }}
+			{{ category.slug }}
+			<a href="{% url category-update category.id %}">Edit</a>
+		</div>
+	{% endfor %}
+{% endblock %}
+
+{% block navigation %}
+	<ul>
+		<li><a href="{% url category-create %}">Create New Category</a></li>
+	</ul>
+{% endblock %}

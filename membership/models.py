@@ -12,6 +12,15 @@ MEMBERSHIP_TYPES = (
 )
 
 
+class Profile(Loggable):
+    user = models.ForeignKey(User)
+    membership_type = models.IntegerField(choices=MEMBERSHIP_TYPES, db_index=True)
+
+    TYPE_NONE = '0'
+    TYPE_READER = '1'
+    TYPE_PUBLISHER = '2'
+
+
 @receiver(post_save)
 def create_profile(sender, **kwargs):
     if issubclass(sender, User) and kwargs['created']:
@@ -20,12 +29,3 @@ def create_profile(sender, **kwargs):
         except:
             # Create if not exist; signal has been sent twice
             Profile.objects.create(user=kwargs['instance'], membership_type='1')
-
-
-class Profile(Loggable):
-    user = models.ForeignKey(User)
-    membership_type = models.IntegerField(choices=MEMBERSHIP_TYPES, db_index=True)
-
-    TYPE_NONE = '0'
-    TYPE_READER = '1'
-    TYPE_PUBLISHER = '2'

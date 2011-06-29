@@ -1,11 +1,24 @@
 {% extends 'base_authenticated.html' %}
 
-{% block head_title %}Periodicals{% endblock %}
-{% block page_title %}Periodicals{% endblock %}
+{% block head_title %}Magazines{% endblock %}
+{% block page_title %}Magazines{% endblock %}
+
+{% block meta %}{{ publisher.name }}{% endblock %}
 
 {% block content %}
-	Periodicals Index
+	{% for periodical in publisher.periodicals %}
+		<div class="periodical">
+			{{ periodical.title }}
+			<a href="{% url publicatoin-create-issue publisher.id periodical.id %}">Upload New Issue</a>
+			{% for issue in periodical.issues %}
+				{{ issue.issued_at }}
+			{% endfor %}
+		</div>
+	{% endfor %}
 {% endblock %}
 
 {% block navigation %}
+	<ul>
+		<li><a href="{% url publication-create-periodical publisher.id %}">Create New Magazine</a></li>
+	</ul>
 {% endblock %}

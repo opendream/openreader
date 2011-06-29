@@ -2,7 +2,7 @@ from django import forms
 from django.forms.extras.widgets import SelectDateWidget
 from django.forms.widgets import HiddenInput
 
-from publication.models import Book, Periodical, Publisher, Issue, \
+from publication.models import Book, Category, Issue, Periodical, Publisher, \
                                PUBLICATION_TYPES
 
 
@@ -26,13 +26,13 @@ class BookForm(forms.ModelForm):
 
     class Meta:
         model = Book
-        exclude = ('publisher',)
+        exclude = ('publisher', 'status', 'pending_until')
 
 
 class PeriodicalForm(forms.ModelForm):
     class Meta:
         model = Periodical
-        exclude = ('publisher',)
+        exclude = ('periodical_type', 'publisher', 'status', 'pending_until', 'categories')
 
 
 class IssueForm(forms.ModelForm):
@@ -53,3 +53,8 @@ class IssueForm(forms.ModelForm):
         widgets = {
             'issued_at': SelectDateWidget()
         }
+
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category

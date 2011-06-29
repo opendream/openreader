@@ -4,7 +4,19 @@
 
 {% block page_title %}{% endblock %}
 
+{% block tabs %}
+	<ul>
+		<li><a href="{% url publication-publisher-dashboard 1 %}">Dashboard</a></li>
+		<li><a href="{% url publication-index-periodical 1 %}">Magazines</a></li>
+		<li><a href="{% url publication-index-book 1 %}">Books</a></li>
+		<li><a href="{% url publication-manage-publisher 1 %}">Manage Publisher</a></li>
+	</ul>
+{% endblock %}
+
 {% block main %}
+	<div class="meta">
+		{% block meta %}{% endblock %}
+	<div>
 	<div class="navigation">
 		{% block navigation %}{% endblock %}
 	</div>

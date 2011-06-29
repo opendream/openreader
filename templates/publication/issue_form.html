@@ -12,6 +12,10 @@
 			{{ form.issued_at }}
 		</div>
 		<div>
+			<label for="id_title">Description:</label><br />
+			{{ form.description }}
+		</div>
+		<div>
 			<label for="id_file_upload">File:</label><br />
 			{{ form.file_upload.errors }}
 			{{ form.file_upload }}

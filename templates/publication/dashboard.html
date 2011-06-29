@@ -1,0 +1,23 @@
+{% extends 'base_authenticated.html' %}
+
+{% block head_title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+	<div>
+		Draft Issues
+	</div>
+	<div>
+		Pending Issues
+	</div>
+	<div>
+		Published Issues
+	</div>
+{% endblock %}
+
+{% block navigation %}
+	<ul>
+		<li><a href="{% url publication-create-periodical publisher.id %}">Upload Magazine Issue</a></li>
+		<li><a href="{% url publication-create-book publisher.id %}">Upload Book</a></li>
+	</ul>
+{% endblock %}

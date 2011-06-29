@@ -1,0 +1,26 @@
+{% extends 'base_authenticated.html' %}
+
+{% block head_title %}Update {{ obj.title }}'s Table of Contents{% endblock %}
+{% block page_title %}Update {{ obj.title }}'s Table of Contents{% endblock %}
+
+{% block content %}
+	<form method="POST">
+		<div>
+			<label for="toc">Table of Contents:</label><br />
+			page
+			<input type="text" name="toc_1_page" />
+			title
+			<input type="text" name="toc_1_title" />
+			author
+			<input type="text" name="toc_1_author" /><br />
+			page
+			<input type="text" name="toc_2_page" />
+			title
+			<input type="text" name="toc_2_title" />
+			author
+			<input type="text" name="toc_2_author" />
+		</div>
+		<input type="submit" value="Save" />
+		{% csrf_token %}
+	</form>
+{% endblock %}

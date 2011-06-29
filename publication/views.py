@@ -5,15 +5,25 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
-from publication.forms import BookForm, PeriodicalForm, PublisherForm, \
-                              IssueForm
-from publication.models import Book, FileUpload, Publication, Publisher, \
-                               Periodical, Issue
+from publication.forms import BookForm, CategoryForm, IssueForm, PeriodicalForm, \
+                              PublisherForm
+from publication.models import Book, Category, FileUpload, Issue, Periodical, \
+                               Publication, Publisher, TopicOfContents \
 
 
 @login_required
 def index_publisher(request):
     return render(request, 'publication/publisher_index.html') 
+
+@login_required
+def publisher_dashboard(request, id):
+    publisher = get_object_or_404(Publisher, pk=id)
+    return render(request, 'publication/dashboard.html', {'publisher': publisher})
+
+@login_required
+def manage_publisher(request, id):
+    publisher = get_object_or_404(Publisher, pk=id)
+    return render(request, 'publication/publisher_management.html', {'publisher': publisher})
 
 @login_required
 def create_publisher(request):
@@ -46,6 +56,34 @@ def update_publisher(request, id):
     return render(request, 'publication/publisher_form.html', {'form': form})
 
 @login_required
+def index_category(request):
+    categories = Category.objects.all()
+    return render(request, 'publication/category_index.html', {'categories': categories})
+
+@login_required
+def create_category(request):
+    if request.method == 'POST':
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('category-index')
+    else:
+        form = CategoryForm()
+    return render(request, 'publication/category_form.html', {'form': form})
+
+@login_required
+def update_category(request, category_id):
+    category = get_object_or_404(Category, pk=category_id)
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            return redirect('category-index')
+    else:
+        form = CategoryForm(instance=category)
+    return render(request, 'publication/category_form.html', {'form': form})
+
+@login_required
 def index_book(request, publisher_id):
     return render(request, 'publication/book_index.html') 
 
@@ -69,6 +107,25 @@ def create_book(request, publisher_id):
     else:
         form = BookForm()
     return render(request, 'publication/book_form.html', {'form': form}) 
+
+@login_required
+def create_book_toc(request, publisher_id, book_id):
+    book = get_object_or_404(Book, pk=book_id)
+    if request.method == 'POST':
+        for i in range(100): # TODO: fix range
+            i += 1
+            if request.POST.has_key('toc_%s_page' % i):
+                TopicOfContents(
+                    publication_type=Publication.BOOK,
+                    publication_id=book_id,
+                    page=request.POST.get('toc_%s_page' % i),
+                    title=request.POST.get('toc_%s_title' % i),
+                    author=book.author
+                ).save()
+            else:
+                break
+        return redirect('publication-show-book', publisher_id=publisher_id, book_id=book_id)
+    return render(request, 'publication/toc_form.html', {'obj': book})
 
 @login_required
 def show_book(request, publisher_id, book_id):
@@ -97,8 +154,17 @@ def update_book(request, publisher_id, book_id):
     return render(request, 'publication/book_form.html', {'form': form, 'book_id': book_id}) 
 
 @login_required
+def update_book_toc(request, publisher_id, book_id):
+    pass
+
+@login_required
+def delete_book(request, publisher_id, book_id):
+    pass
+
+@login_required
 def index_periodical(request, publisher_id):
-    return render(request, 'publication/periodical_index.html') 
+    publisher = get_object_or_404(Publisher, pk=publisher_id)
+    return render(request, 'publication/periodical_index.html', {'publisher': publisher}) 
 
 @login_required
 def create_periodical(request, publisher_id):
@@ -109,12 +175,12 @@ def create_periodical(request, publisher_id):
             periodical.publisher = Publisher.objects.get(pk=publisher_id) 
             periodical.save()
             return redirect('publication-show-periodical', publisher_id=publisher_id,
-                periodical_id=periodical.id)
-        else:
-            print form.errors
+                        periodical_id=periodical.id)
     else:
         form = PeriodicalForm()
-    return render(request, 'publication/periodical_form.html', {'form': form}) 
+    categories = Category.objects.all()
+    return render(request, 'publication/periodical_form.html',
+                {'form': form, 'categories': categories})
 
 @login_required
 def show_periodical(request, publisher_id, periodical_id):
@@ -129,15 +195,17 @@ def update_periodical(request, publisher_id, periodical_id):
         if form.is_valid():
             form.save()
             return redirect('publication-show-periodical',
-                publisher_id=publisher_id, periodical_id=periodical_id)
+                        publisher_id=publisher_id, periodical_id=periodical_id)
     else:
         form = PeriodicalForm(instance=periodical)
-    return render(request, 'publication/periodical_form.html', {'form': form})
+    categories = Category.objects.all()
+    return render(request, 'publication/periodical_form.html',
+                {'form': form, 'categories': categories})
 
 @login_required
 def index_issue(request, publisher_id, periodical_id):
     return redirect('publication-show-periodical',
-        publisher_id=publisher_id, periodical_id=periodical_id)
+                publisher_id=publisher_id, periodical_id=periodical_id)
 
 @login_required
 def create_issue(request, publisher_id, periodical_id):
@@ -150,18 +218,36 @@ def create_issue(request, publisher_id, periodical_id):
             issue.save()
 
             file_name = 'u' + str(request.user.id) + '_p' + str(periodical.id) + '_s' + str(issue.id)
-            path = handle_uploaded_file(request.FILES['file_upload'],
-                file_name=file_name)
+            path = handle_uploaded_file(request.FILES['file_upload'], file_name=file_name)
             FileUpload.objects.create(uploader=request.user,
                 publication_type=Publication.PERIODICAL,
-                publication_id=periodical.id,
-                issue_id=issue.id,
+                publication_id=issue.id,
                 path=path)
             return redirect('publication-show-issue',
-                publisher_id=publisher_id, periodical_id=periodical_id, issue_id=issue.id)
+                        publisher_id=publisher_id, periodical_id=periodical_id, issue_id=issue.id)
     else:
         form = IssueForm()
     return render(request, 'publication/issue_form.html', {'form': form, 'periodical': periodical})
+
+@login_required
+def create_issue_toc(request, publisher_id, periodical_id, issue_id):
+    issue = get_object_or_404(Issue, pk=issue_id)
+    if request.method == 'POST':
+        for i in range(100): # TODO: fix range
+            i += 1
+            if request.POST.has_key('toc_%s_page' % i):
+                TopicOfContents(
+                    publication_type=Publication.PERIODICAL,
+                    publication_id=issue_id,
+                    page=request.POST.get('toc_%s_page' % i),
+                    title=request.POST.get('toc_%s_title' % i),
+                    author=request.POST.get('toc_%s_author' % i)
+                ).save()
+            else:
+                break
+        return redirect('publication-show-issue',
+                    publisher_id=publisher_id, periodical_id=periodical_id, issue_id=issue_id)
+    return render(request, 'publication/toc_form.html', {'obj': issue})
 
 @login_required
 def show_issue(request, publisher_id, periodical_id, issue_id):
@@ -178,18 +264,39 @@ def update_issue(request, publisher_id, periodical_id, issue_id):
             if form.cleaned_data.has_key('file_upload'):
                 file_upload = get_object_or_404(FileUpload,
                     publication_type=Publication.PERIODICAL,
-                    publication_id=periodical_id,
-                    issue_id=issue_id)
+                    publication_id=issue_id)
                 path = handle_uploaded_file(request.FILES['file_upload'],
                     file_name=file_upload.file_name(), update=True)
                 file_upload.uploader = request.user # may another collaborator has updated
                 file_upload.path = path # may the file extension has been changed
                 file_upload.save() # save updated_at
             return redirect('publication-show-issue',
-                publisher_id=publisher_id, periodical_id=periodical_id, issue_id=issue_id)
+                        publisher_id=publisher_id, periodical_id=periodical_id, issue_id=issue_id)
     else:
         form = IssueForm(instance=issue, initial={'issue_id': issue_id})
     return render(request, 'publication/issue_form.html', {'form': form, 'issue_id': issue_id}) 
+
+@login_required
+def update_issue_status(request, publisher_id, periodical_id, issue_id):
+    issue = get_object_or_404(Issue, pk=issue_id)
+    if request.method == 'POST':
+        pass
+    else:
+        pass
+    return render(request, 'publication/status_form.html', {'obj': issue})
+
+@login_required
+def update_issue_toc(request, publisher_id, periodical_id, issue_id):
+    issue = get_object_or_404(Issue, pk=issue_id)
+    if request.method == 'POST':
+        pass
+    else:
+        pass 
+    return render(request, 'publication/toc_form.html', {'obj': issue})
+
+@login_required
+def delete_issue(request, publisher_id, periodical_id, issue_id):
+    pass
 
 # private ----------------------------------------------------------------------
 

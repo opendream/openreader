@@ -1,0 +1,22 @@
+{% extends 'base_authenticated.html' %}
+
+{% block head_title %}Create New Category{% endblock %}
+{% block page_title %}Create New Category{% endblock %}
+
+{% block content %}
+	<form method="POST">
+		{{ form.non_field_errors }}
+		<div>
+			<label for="id_name">Name:</label><br />
+			{{ form.name.errors }}
+			{{ form.name }}
+		</div>
+		<div>
+			<label for="id_slug">Slug:</label><br />
+			{{ form.slug.errors }}
+			{{ form.slug }}
+		</div>
+		<input type="submit" value="Save" />
+		{% csrf_token %}
+	</form>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base_authenticated.html' %}
+
+{% block head_title %}Change Status{% endblock %}
+{% block page_title %}Change Status{% endblock %}
+
+{% block content %}
+	<form method="POST">
+		<div>
+			<input type="radio" name="status" value="published" id="published" />
+			<label for="published">Published</label>
+		</div>
+		<div>
+			<div>
+				<input type="radio" name="status" value="pending" id="pending" />
+				<label for="pending">Pending until</label>
+			</div>
+			<div>
+				Date
+				<input type="text" />
+				Time
+				<input type="text" />
+			</div>
+		</div>
+		<div>
+			<input type="radio" name="status" value="unpublished" id="unpublished" />
+			<label for="unpublished">Unpublished</label>
+		</div>
+		<div>
+			{% if false %}
+				<a href="{% url publication-delete-book obj.publisher.id obj.id  %}">Delete Permanently</a>
+			{% else %}
+				<a href="{% url publication-delete-issue obj.periodical.publisher.id obj.periodical.id obj.id %}">Delete Permanently</a>
+			{% endif %}
+		</div>
+		<input type="submit" value="Save" />
+		{% csrf_token %}
+	</form>
+{% endblock %}

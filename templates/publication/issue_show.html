@@ -7,10 +7,22 @@
 	<p>Title: {{ issue.periodical.title }}</p>
 	<p>Issued at: {{ issue.issued_at }}</p>
 	<p>File: <a href="{{ issue.file_path }}">download</a></p>
+
+	<div class="toc">
+		{% for topic in issue.topic_of_contents %}
+			<div class="item">
+				page: {{ topic.page }}
+				title: {{ topic.title }}
+				author: {{ topic.author }}
+			</div>
+		{% endfor %}
+	</div>
 {% endblock %}
 
 {% block navigation %}
 	<ul>
 		<li><a href="{% url publication-update-issue issue.periodical.publisher.id issue.periodical.id issue.id %}">Edit</a></li>
+		<li><a href="{% url publication-update-issue-toc issue.periodical.publisher.id issue.periodical.id issue.id %}">Update Table of Contents</a></li>
+		<li><a href="{% url publication-update-issue-status issue.periodical.publisher.id issue.periodical.id issue.id %}">Change Status</a></li>
 	</ul>
 {% endblock %}

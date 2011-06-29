@@ -18,6 +18,14 @@ DATABASES = {
         'PASSWORD': '',
         'HOST': '',
         'PORT': '',
+    },
+    'mongodb': {
+        'ENGINE': 'django_mongodb_engine',
+        'NAME': 'openreader',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': 13306,
     }
 }
 

@@ -1,4 +1,4 @@
 *.pyc
-db/dev.sqlite3
+db/*
 sitestatic/*
 media/*
