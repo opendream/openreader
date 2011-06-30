@@ -17,9 +17,7 @@
 			{% endif %}
 		</div>
 		<div class="main">
-			<div class="tabs">
-				{% block tabs %}{% endblock %}
-			<div>
+			{% block section %}{% endblock %}
 			<h1>{% block page_title %}{% endblock %}</h1>
 			{% if messages %}
 				<div class="messages">

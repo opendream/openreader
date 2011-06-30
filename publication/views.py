@@ -225,6 +225,8 @@ def create_issue(request, publisher_id, periodical_id):
                 path=path)
             return redirect('publication-show-issue',
                         publisher_id=publisher_id, periodical_id=periodical_id, issue_id=issue.id)
+        else:
+            print form
     else:
         form = IssueForm()
     return render(request, 'publication/issue_form.html', {'form': form, 'periodical': periodical})
@@ -262,11 +264,21 @@ def update_issue(request, publisher_id, periodical_id, issue_id):
         if form.is_valid():
             form.save()
             if form.cleaned_data.has_key('file_upload'):
-                file_upload = get_object_or_404(FileUpload,
-                    publication_type=Publication.PERIODICAL,
-                    publication_id=issue_id)
-                path = handle_uploaded_file(request.FILES['file_upload'],
-                    file_name=file_upload.file_name(), update=True)
+                try:
+                    file_upload = FileUpload.objects.get(
+                        publication_type=Publication.PERIODICAL,
+                        publication_id=issue_id
+                    )
+                    path = handle_uploaded_file(request.FILES['file_upload'],
+                                file_name=file_upload.file_name(), update=True)
+                except FileUpload.DoesNotExist:
+                    file_upload = FileUpload(
+                        publication_type=Publication.PERIODICAL,
+                        publication_id=issue_id
+                    )
+                    file_name = 'u' + str(request.user.id) + '_p' + str(periodical_id) + \
+                                '_s' + str(issue.id)
+                    path = handle_uploaded_file(request.FILES['file_upload'], file_name=file_name)
                 file_upload.uploader = request.user # may another collaborator has updated
                 file_upload.path = path # may the file extension has been changed
                 file_upload.save() # save updated_at
@@ -280,9 +292,10 @@ def update_issue(request, publisher_id, periodical_id, issue_id):
 def update_issue_status(request, publisher_id, periodical_id, issue_id):
     issue = get_object_or_404(Issue, pk=issue_id)
     if request.method == 'POST':
-        pass
-    else:
-        pass
+        issue.status = request.POST['status']
+        issue.save()
+        return redirect('publication-show-issue', publisher_id=publisher_id,
+                    periodical_id=periodical_id, issue_id=issue_id)
     return render(request, 'publication/status_form.html', {'obj': issue})
 
 @login_required

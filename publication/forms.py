@@ -32,7 +32,7 @@ class BookForm(forms.ModelForm):
 class PeriodicalForm(forms.ModelForm):
     class Meta:
         model = Periodical
-        exclude = ('periodical_type', 'publisher', 'status', 'pending_until', 'categories')
+        exclude = ('periodical_type', 'publisher', 'categories')
 
 
 class IssueForm(forms.ModelForm):
@@ -49,7 +49,7 @@ class IssueForm(forms.ModelForm):
 
     class Meta:
         model = Issue
-        exclude = ('periodical',)
+        exclude = ('periodical', 'status', 'pending_until')
         widgets = {
             'issued_at': SelectDateWidget()
         }

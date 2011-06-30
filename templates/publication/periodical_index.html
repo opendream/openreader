@@ -3,16 +3,31 @@
 {% block head_title %}Magazines{% endblock %}
 {% block page_title %}Magazines{% endblock %}
 
-{% block meta %}{{ publisher.name }}{% endblock %}
+{% block meta %}
+	<div>
+		{{ publisher.name }}
+	</div>
+{% endblock %}
 
 {% block content %}
-	{% for periodical in publisher.periodicals %}
+	{% for periodical in publisher.periodical_set.all %}
 		<div class="periodical">
-			{{ periodical.title }}
-			<a href="{% url publicatoin-create-issue publisher.id periodical.id %}">Upload New Issue</a>
-			{% for issue in periodical.issues %}
-				{{ issue.issued_at }}
+			<div>{{ periodical.title }}</div>
+			<ul>
+				<li class="issue">
+					<a href="{% url publication-create-issue publisher.id periodical.id %}">Upload New Issue</a>
+				</li>
+			{% for issue in periodical.issue_set.all %}
+				<li class="issue">
+					<a href="{% url publication-show-issue publisher.id periodical.id issue.id %}">Vol. {{ issue.issued_at|date:"j M Y" }}</a>
+					{{ issue.get_status_display }}
+					{% if issue.status == 2 %}
+						{{ issue.pending_until }}
+					{% endif %}
+				</li>
 			{% endfor %}
+			</ul>
+			<a href="{% url publication-show-periodical publisher.id periodical.id %}">View All Issues</a>
 		</div>
 	{% endfor %}
 {% endblock %}

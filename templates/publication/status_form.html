@@ -1,4 +1,5 @@
 {% extends 'base_authenticated.html' %}
+{% load custom_tags %}
 
 {% block head_title %}Change Status{% endblock %}
 {% block page_title %}Change Status{% endblock %}
@@ -15,10 +16,12 @@
 				<label for="pending">Pending until</label>
 			</div>
 			<div>
-				Date
-				<input type="text" />
-				Time
-				<input type="text" />
+				<label for="pending_date">Date</label>
+				<input name="pending_date" id="pending_date" />
+				<label for="pending_time">Time</label>
+				<select name="pending_time" id="pending_time">
+					{% render_pending_time_options %}
+				</select>
 			</div>
 		</div>
 		<div>

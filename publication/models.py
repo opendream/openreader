@@ -18,7 +18,7 @@ PUBLICATION_STATUSES = (
     (1, 'Draft'),
     (2, 'Pending'),
     (3, 'Published'),
-    (4, 'Unpublished'),
+    (4, 'Unpublished')
 )
 
 PERIODICAL_TYPES = (
@@ -36,8 +36,6 @@ class Publication(Loggable):
     publisher = models.ForeignKey('Publisher')
     title = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
-    status = models.IntegerField(choices=PUBLICATION_STATUSES, default=1, db_index=True)
-    pending_until = models.DateTimeField(null=True, blank=True)
 
     BOOK = 1
     PERIODICAL = 2
@@ -54,6 +52,8 @@ class Publication(Loggable):
 class Book(Publication):
     author = models.CharField(max_length=100)
     isbn = models.CharField(max_length=13)
+    status = models.IntegerField(choices=PUBLICATION_STATUSES, default=1, db_index=True)
+    pending_until = models.DateTimeField(null=True, blank=True)
 
     def file_path(self):
         try:
@@ -76,6 +76,8 @@ class Issue(Loggable):
     periodical = models.ForeignKey('Periodical')
     issued_at = models.DateField()
     description = models.TextField(null=True, blank=True)
+    status = models.IntegerField(choices=PUBLICATION_STATUSES, default=1, db_index=True)
+    pending_until = models.DateTimeField(null=True, blank=True)
 
     def file_path(self):
         try:
