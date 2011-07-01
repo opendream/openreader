@@ -85,7 +85,8 @@ def update_category(request, category_id):
 
 @login_required
 def index_book(request, publisher_id):
-    return render(request, 'publication/book_index.html') 
+    publisher = get_object_or_404(Publisher, pk=publisher_id)
+    return render(request, 'publication/book_index.html', {'publisher': publisher}) 
 
 @login_required
 def create_book(request, publisher_id):
@@ -152,6 +153,29 @@ def update_book(request, publisher_id, book_id):
     else:
         form = BookForm(instance=book, initial={'book_id': book_id})
     return render(request, 'publication/book_form.html', {'form': form, 'book_id': book_id}) 
+
+@login_required
+def update_book_status(request, publisher_id, book_id):
+    book = get_object_or_404(Book, pk=book_id)
+    if request.method == 'POST':
+        status = int(request.POST['status'])
+        if status == Publication.STATUS_PENDING:
+            pending_until = "%s %s" % (request.POST['pending_date'], request.POST['pending_time'])
+            pending_until = datetime.datetime.strptime(pending_until, '%Y/%m/%d %H:%M')
+            book.pending_until = pending_until
+        else:
+            if book.pending_until:
+                book.pending_until = None
+        book.status = status
+        book.save()
+        return redirect('publication-show-book', publisher_id=publisher_id, book_id=book_id)
+    status = {
+        'DRAFT': Publication.STATUS_DRAFT,
+        'PENDING': Publication.STATUS_PENDING,
+        'PUBLISHED': Publication.STATUS_PUBLISHED,
+        'UNPUBLISHED': Publication.STATUS_UNPUBLISHED
+    }
+    return render(request, 'publication/status_form.html', {'obj': book, 'status': status})
 
 @login_required
 def update_book_toc(request, publisher_id, book_id):

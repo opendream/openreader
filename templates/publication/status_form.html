@@ -33,7 +33,7 @@
 			<label for="unpublished">Unpublished</label>
 		</div>
 		<div>
-			{% if false %}
+			{% if obj.instance == 'Book' %}
 				<a href="{% url publication-delete-book obj.publisher.id obj.id  %}">Delete Permanently</a>
 			{% else %}
 				<a href="{% url publication-delete-issue obj.periodical.publisher.id obj.periodical.id obj.id %}">Delete Permanently</a>

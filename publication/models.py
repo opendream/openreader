@@ -66,6 +66,9 @@ class Book(Publication):
         return TopicOfContents.objects.filter(publication_type=Publication.BOOK,
                                               publication_id=self.id)
 
+    def instance(self):
+        return 'Book'
+
 
 class Periodical(Publication):
     periodical_type = models.IntegerField(choices=PERIODICAL_TYPES, default=1, db_index=True)
@@ -90,6 +93,8 @@ class Issue(Loggable):
         return TopicOfContents.objects.filter(publication_type=Publication.PERIODICAL,
                                               publication_id=self.id)
 
+    def instance(self):
+        return 'Issue'
 
 class FileUpload(Loggable):
     uploader = models.ForeignKey(User)

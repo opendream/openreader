@@ -6,8 +6,20 @@
 {% block meta %}{{ publisher.name }}{% endblock %}
 
 {% block content %}
-	Book Index
+	{% for book in publisher.book_set.all %}
+		<div class="book">
+			<a href="{% url publication-show-book publisher.id book.id %}">{{ book.title }}</a><br />
+			{{ book.get_status_display }}
+			{% if book.status == 2 %}
+				until {{ book.pending_until|date:"d F Y h:i A" }}
+			{% endif %}<br />
+			<a href="{% url publication-update-book publisher.id book.id %}">Edit Book</a>
+		</div>
+	{% endfor %}
 {% endblock %}
 
 {% block navigation %}
+	<ul>
+		<li><a href="{% url publication-create-book publisher.id %}">Upload New Book</a></li>
+	</ul>
 {% endblock %}

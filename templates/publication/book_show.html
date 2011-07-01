@@ -8,10 +8,21 @@
 	<p>Author: {{ book.author }}</p>
 	<p>ISBN: {{ book.isbn }}</p>
 	<p>File: <a href="{{ book.file_path }}">download</a></p>
+
+	<div class="toc">
+		{% for topic in book.topic_of_contents %}
+			<div class="item">
+				page: {{ topic.page }}
+				title: {{ topic.title }}
+			</div>
+		{% endfor %}
+	</div>
 {% endblock %}
 
 {% block navigation %}
 	<ul>
 		<li><a href="{% url publication-update-book book.publisher.id book.id %}">Edit</a></li>
+		<li><a href="{% url publication-update-book-toc book.publisher.id book.id %}">Update Table of Contents</a></li>
+		<li><a href="{% url publication-update-book-status book.publisher.id book.id %}">Change Status</a></li>
 	</ul>
 {% endblock %}

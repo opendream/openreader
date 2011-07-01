@@ -22,7 +22,7 @@
 					<a href="{% url publication-show-issue publisher.id periodical.id issue.id %}">Vol. {{ issue.issued_at|date:"j M Y" }}</a>
 					{{ issue.get_status_display }}
 					{% if issue.status == 2 %}
-						{{ issue.pending_until }}
+						until {{ issue.pending_until|date:"d F Y h:i A" }}
 					{% endif %}
 				</li>
 			{% endfor %}
