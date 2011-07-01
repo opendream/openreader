@@ -7,12 +7,16 @@
 {% block content %}
 	<form method="POST">
 		<div>
-			<input type="radio" name="status" value="published" id="published" />
+			<input type="radio" name="status" value="{{ status.DRAFT }}" id="draft" {% if obj.status == status.DRAFT %}checked{% endif %} />
+			<label for="published">Draft</label>
+		</div>
+		<div>
+			<input type="radio" name="status" value="{{ status.PUBLISHED }}" id="published" {% if obj.status == status.PUBLISHED %}checked{% endif %} />
 			<label for="published">Published</label>
 		</div>
 		<div>
 			<div>
-				<input type="radio" name="status" value="pending" id="pending" />
+				<input type="radio" name="status" value="{{ status.PENDING }}" id="pending" {% if obj.status == status.PENDING %}checked{% endif %} />
 				<label for="pending">Pending until</label>
 			</div>
 			<div>
@@ -25,7 +29,7 @@
 			</div>
 		</div>
 		<div>
-			<input type="radio" name="status" value="unpublished" id="unpublished" />
+			<input type="radio" name="status" value="{{ status.UNPUBLISHED }}" id="unpublished" {% if obj.status == status.UNPUBLISHED %}checked{% endif %} />
 			<label for="unpublished">Unpublished</label>
 		</div>
 		<div>

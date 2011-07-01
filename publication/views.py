@@ -292,11 +292,25 @@ def update_issue(request, publisher_id, periodical_id, issue_id):
 def update_issue_status(request, publisher_id, periodical_id, issue_id):
     issue = get_object_or_404(Issue, pk=issue_id)
     if request.method == 'POST':
-        issue.status = request.POST['status']
+        status = int(request.POST['status'])
+        if status == Publication.STATUS_PENDING:
+            pending_until = "%s %s" % (request.POST['pending_date'], request.POST['pending_time'])
+            pending_until = datetime.datetime.strptime(pending_until, '%Y/%m/%d %H:%M')
+            issue.pending_until = pending_until
+        else:
+            if issue.pending_until:
+                issue.pending_until = None
+        issue.status = status
         issue.save()
         return redirect('publication-show-issue', publisher_id=publisher_id,
                     periodical_id=periodical_id, issue_id=issue_id)
-    return render(request, 'publication/status_form.html', {'obj': issue})
+    status = {
+        'DRAFT': Publication.STATUS_DRAFT,
+        'PENDING': Publication.STATUS_PENDING,
+        'PUBLISHED': Publication.STATUS_PUBLISHED,
+        'UNPUBLISHED': Publication.STATUS_UNPUBLISHED
+    }
+    return render(request, 'publication/status_form.html', {'obj': issue, 'status': status})
 
 @login_required
 def update_issue_toc(request, publisher_id, periodical_id, issue_id):
