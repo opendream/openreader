@@ -26,6 +26,13 @@
 			{{ form.file_upload.errors }}
 			{{ form.file_upload }}
 		</div>
+		<div>
+			Categories:
+			{% for category in categories %}
+				<input type="checkbox" name="category_{{ category.id }}" id="category_{{ category.id }}" {% if category.id in book_categories %}checked{% endif %} />
+				<label for="category_{{ category.id }}">{{ category.name }}</label>
+			{% endfor %}
+		</div>
 		{% if book_id %}
 			{{ form.book_id }}
 		{% endif %}

@@ -96,6 +96,7 @@ def create_book(request, publisher_id):
             book = form.save(commit=False)
             book.publisher = Publisher.objects.get(pk=publisher_id) 
             book.save()
+            book.save_categories(request.POST)
 
             file_name = 'u' + str(request.user.id) + '_b' + str(book.id)
             path = handle_uploaded_file(request.FILES['file_upload'],
@@ -107,7 +108,8 @@ def create_book(request, publisher_id):
             return redirect('publication-show-book', publisher_id=publisher_id, book_id=book.id)
     else:
         form = BookForm()
-    return render(request, 'publication/book_form.html', {'form': form}) 
+    categories = Category.objects.all()
+    return render(request, 'publication/book_form.html', {'form': form, 'categories': categories}) 
 
 @login_required
 def create_book_toc(request, publisher_id, book_id):
@@ -140,19 +142,26 @@ def update_book(request, publisher_id, book_id):
         form = BookForm(request.POST, request.FILES, instance=book)
         if form.is_valid():
             form.save()
+            book.save_categories(request.POST)
             if form.cleaned_data.has_key('file_upload'):
                 file_upload = get_object_or_404(FileUpload,
-                    publication_type=Publication.BOOK,
-                    publication_id=book_id)
+                                    publication_type=Publication.BOOK,
+                                    publication_id=book_id)
                 path = handle_uploaded_file(request.FILES['file_upload'],
-                    file_name=file_upload.file_name(), update=True)
+                            file_name=file_upload.file_name(), update=True)
                 file_upload.uploader = request.user # may another collaborator has updated
                 file_upload.path = path # may the file extension has been changed
                 file_upload.save() # save updated_at
             return redirect('publication-show-book', publisher_id=publisher_id, book_id=book_id)
     else:
         form = BookForm(instance=book, initial={'book_id': book_id})
-    return render(request, 'publication/book_form.html', {'form': form, 'book_id': book_id}) 
+    categories = Category.objects.all()
+    book_categories = []
+    for category in book.categories.all():
+        book_categories.append(category.id)
+    return render(request, 'publication/book_form.html',
+                {'form': form, 'book_id': book_id, 'book_categories': book_categories, 
+                 'categories': categories}) 
 
 @login_required
 def update_book_status(request, publisher_id, book_id):
@@ -196,8 +205,9 @@ def create_periodical(request, publisher_id):
         form = PeriodicalForm(request.POST)
         if form.is_valid():
             periodical = form.save(commit=False)
-            periodical.publisher = Publisher.objects.get(pk=publisher_id) 
+            periodical.publisher = Publisher.objects.get(pk=publisher_id)
             periodical.save()
+            periodical.save_categories(request.POST)
             return redirect('publication-show-periodical', publisher_id=publisher_id,
                         periodical_id=periodical.id)
     else:
@@ -217,14 +227,20 @@ def update_periodical(request, publisher_id, periodical_id):
     if request.method == 'POST':
         form = PeriodicalForm(request.POST, instance=periodical)
         if form.is_valid():
-            form.save()
+            periodical = form.save(commit=False)
+            periodical.save()
+            periodical.save_categories(request.POST)
             return redirect('publication-show-periodical',
                         publisher_id=publisher_id, periodical_id=periodical_id)
     else:
         form = PeriodicalForm(instance=periodical)
     categories = Category.objects.all()
+    periodical_categories = []
+    for category in periodical.categories.all():
+        periodical_categories.append(category.id)
     return render(request, 'publication/periodical_form.html',
-                {'form': form, 'categories': categories})
+                {'form': form, 'periodical_categories': periodical_categories,
+                 'categories': categories})
 
 @login_required
 def index_issue(request, publisher_id, periodical_id):

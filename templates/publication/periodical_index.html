@@ -12,7 +12,7 @@
 {% block content %}
 	{% for periodical in publisher.periodical_set.all %}
 		<div class="periodical">
-			<div>{{ periodical.title }}</div>
+			<div><a href="{% url publication-show-periodical publisher.id periodical.id %}">{{ periodical.title }}</a></div>
 			<ul>
 				<li class="issue">
 					<a href="{% url publication-create-issue publisher.id periodical.id %}">Upload New Issue</a>

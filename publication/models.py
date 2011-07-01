@@ -1,8 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
 #from djangotoolbox.fields import EmbeddedModelField, ListField
 
@@ -45,6 +43,15 @@ class Publication(Loggable):
     STATUS_PUBLISHED = 3
     STATUS_UNPUBLISHED = 4
 
+    def save_categories(self, post_vars):
+        categories = []
+        for key in post_vars:
+            if key.find('category_') == 0:
+                pk = key.split('_')[1]
+                categories.append(Category.objects.get(pk=pk))
+        self.categories = categories
+        self.save()
+
     class Meta:
         abstract = True
 
@@ -54,6 +61,7 @@ class Book(Publication):
     isbn = models.CharField(max_length=13)
     status = models.IntegerField(choices=PUBLICATION_STATUSES, default=1, db_index=True)
     pending_until = models.DateTimeField(null=True, blank=True)
+    categories = models.ManyToManyField('Category', related_name='book_categories')
 
     def file_path(self):
         try:
@@ -135,17 +143,3 @@ class Category(Loggable):
 #class IssueMetadata(models.Model):
 #    issue_id = models.CharField(max_length=10)
 #    toc = ListField(EmbeddedModelField('TopicOfContents'))
-
-
-# Signals ---------------------------------------------------------------------
-
-@receiver(post_save)
-def save_category(sender, **kwargs):
-    if issubclass(sender, Publication):
-        pass
-        # TODO: logic for category saving here.
-        #if kwargs['created']:
-        #    kwargs['instance'].categories
-        #    Category.objects.create()
-        #else:
-        #    pass

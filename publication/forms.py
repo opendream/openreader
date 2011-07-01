@@ -26,7 +26,7 @@ class BookForm(forms.ModelForm):
 
     class Meta:
         model = Book
-        exclude = ('publisher', 'status', 'pending_until')
+        exclude = ('publisher', 'status', 'pending_until', 'categories')
 
 
 class PeriodicalForm(forms.ModelForm):

@@ -18,7 +18,7 @@
 		<div>
 			Categories:
 			{% for category in categories %}
-				<input type="checkbox" name="category_{{ category.id }}" id="category_{{ category.id }}" />
+				<input type="checkbox" name="category_{{ category.id }}" id="category_{{ category.id }}" {% if category.id in periodical_categories %}checked{% endif %} />
 				<label for="category_{{ category.id }}">{{ category.name }}</label>
 			{% endfor %}
 		</div>
