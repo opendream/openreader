@@ -4,9 +4,10 @@
 <html>
 	<head>
 		<title>{% site_title %} | {% block head_title %}{% endblock %}</title>
+		<script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.6.2.min.js"></script>
 		{% block import %}{% endblock %}
-		<link rel="stylesheet" href="{{ STATIC_URL }}css/style.css" type="text/css" media="all">
 		{% block js_base %}{% endblock %}
+		<link rel="stylesheet" href="{{ STATIC_URL }}css/style.css" type="text/css" media="all">
 	</head>
 	<body>
 		<div class="header">
@@ -29,9 +30,11 @@
 				</div>
 			{% endif %}
 			{% block main %}{% endblock %}
-			{% block js %}{% endblock %}
 		</div>
 		<div class="footer">
 		</div>
+		<script type="text/javascript">
+			{% block js %}{% endblock %}
+		</script>
 	</body>
 </html>

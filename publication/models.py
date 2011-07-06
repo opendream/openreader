@@ -23,6 +23,42 @@ PERIODICAL_TYPES = (
     (1, 'Magazine'),
 )
 
+# Manager ----------------------------------------------------------------------
+
+class PublicationManager:
+    def topic_of_contents(self, kwargs=None):
+        if kwargs:
+            if 'page' in kwargs and 'title' in kwargs:
+                return TopicOfContents.objects.get(
+                            publication_type=self.TYPE,
+                            publication_id=self.id,
+                            page=kwargs['page'],
+                            title=kwargs['title'])
+            elif 'page' in kwargs:
+                return TopicOfContents.objects.filter(
+                            publication_type=self.TYPE,
+                            publication_id=self.id,
+                            page=kwargs['page'])
+            elif 'title' in kwargs:
+                return TopicOfContents.objects.filter(
+                            publication_type=self.TYPE,
+                            publication_id=self.id,
+                            title=kwargs['title'])
+            else:
+                return []
+        else:
+            return TopicOfContents.objects.filter(
+                        publication_type=self.TYPE,
+                        publication_id=self.id)
+
+    def file_path(self):
+        try:
+            f = FileUpload.objects.get(publication_type=self.TYPE, publication_id=self.id)
+            return settings.MEDIA_URL + settings.PUBLICATION_DIR + f.path
+        except:
+            return ''
+
+# DB Models --------------------------------------------------------------------
 
 class Publisher(Loggable):
     owner = models.ForeignKey(User, related_name='owner')
@@ -56,23 +92,14 @@ class Publication(Loggable):
         abstract = True
 
 
-class Book(Publication):
+class Book(Publication, PublicationManager):
     author = models.CharField(max_length=100)
     isbn = models.CharField(max_length=13)
     status = models.IntegerField(choices=PUBLICATION_STATUSES, default=1, db_index=True)
     pending_until = models.DateTimeField(null=True, blank=True)
     categories = models.ManyToManyField('Category', related_name='book_categories')
 
-    def file_path(self):
-        try:
-            f = FileUpload.objects.get(publication_type=Publication.BOOK, publication_id=self.id)
-            return settings.MEDIA_URL + settings.PUBLICATION_DIR + f.path
-        except:
-            return ''
-
-    def topic_of_contents(self):
-        return TopicOfContents.objects.filter(publication_type=Publication.BOOK,
-                                              publication_id=self.id)
+    TYPE = Publication.BOOK
 
     def instance(self):
         return 'Book'
@@ -83,26 +110,18 @@ class Periodical(Publication):
     categories = models.ManyToManyField('Category', related_name='periodical_categories')
 
 
-class Issue(Loggable):
+class Issue(Loggable, PublicationManager):
     periodical = models.ForeignKey('Periodical')
     issued_at = models.DateField()
     description = models.TextField(null=True, blank=True)
     status = models.IntegerField(choices=PUBLICATION_STATUSES, default=1, db_index=True)
     pending_until = models.DateTimeField(null=True, blank=True)
 
-    def file_path(self):
-        try:
-            f = FileUpload.objects.get(publication_type=Publication.PERIODICAL, publication_id=self.id)
-            return settings.MEDIA_URL + settings.PUBLICATION_DIR + f.path
-        except:
-            return ''
-
-    def topic_of_contents(self):
-        return TopicOfContents.objects.filter(publication_type=Publication.PERIODICAL,
-                                              publication_id=self.id)
+    TYPE = Publication.PERIODICAL
 
     def instance(self):
         return 'Issue'
+
 
 class FileUpload(Loggable):
     uploader = models.ForeignKey(User)
@@ -119,7 +138,7 @@ class TopicOfContents(Loggable):
     publication_id = models.CharField(max_length=10, db_index=True)
     page = models.CharField(max_length=3)
     title = models.CharField(max_length=255)
-    author = models.CharField(max_length=100)
+    author = models.CharField(max_length=100, null=True, blank=True)
 
 
 class Category(Loggable):

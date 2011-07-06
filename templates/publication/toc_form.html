@@ -1,26 +1,107 @@
 {% extends 'base_authenticated.html' %}
 
-{% block head_title %}Update {{ obj.title }}'s Table of Contents{% endblock %}
-{% block page_title %}Update {{ obj.title }}'s Table of Contents{% endblock %}
+{% block head_title %}Update Table of Contents{% endblock %}
+{% block page_title %}Update Table of Contents{% endblock %}
 
 {% block content %}
-	<form method="POST">
-		<div>
-			<label for="toc">Table of Contents:</label><br />
-			page
-			<input type="text" name="toc_1_page" />
-			title
-			<input type="text" name="toc_1_title" />
-			author
-			<input type="text" name="toc_1_author" /><br />
-			page
-			<input type="text" name="toc_2_page" />
-			title
-			<input type="text" name="toc_2_title" />
-			author
-			<input type="text" name="toc_2_author" />
-		</div>
-		<input type="submit" value="Save" />
-		{% csrf_token %}
-	</form>
+	<div class="pages">
+		{% for page in pages %}
+			<div class="item"><span class="thumb_page_{{ page }}">{{ page }}</span></div>
+		{% endfor %}
+	</div>
+	<div class="form">
+		<input type="hidden" name="page" />
+		<input type="text" name="title" />
+		<input type="hidden" name="old_title" />
+		<input type="text" name="author" />
+		<input type="button" value="Add" class="btn_create" />
+		<input type="button" value="Update" class="btn_update" />
+		<input type="button" value="Delete" class="btn_delete" />
+		<input type="button" value="Cancel" class="btn_cancel" />
+	</div>
+	<div>
+		<a href="javascript:add_more()" id="add_more">Add More</a>
+	</div>
+{% endblock %}
+
+{% block js %}
+	{% if obj.instance == 'Book' %}
+		var url = '{% url publication-manage-book-toc obj.publisher.id obj.id %}';
+	{% else %}
+		var url = '{% url publication-manage-issue-toc obj.periodical.publisher.id obj.periodical.id obj.id %}';
+	{% endif %}
+
+	$('.btn_create').click(function(e) {
+		var params = {
+				action: 'create',
+				page: $(this).siblings('[name=page]').val(),
+				title: $(this).siblings('[name=title]').val(),
+				author: $(this).siblings('[name=author]').val()
+		};
+		$.post(url, params, function(data) {
+			var result = $.parseJSON(data);
+			if (result.success)	{
+				fill_form(result.topics);
+			}
+		});
+	});
+
+	$('.btn_update').click(function(e) {
+		var params = {
+				action: 'update',
+				page: $(this).siblings('[name=page]').val(),
+				title: $(this).siblings('[name=title]').val(),
+				old_title: $(this).siblings('[name=old_title]').val(),
+				author: $(this).siblings('[name=author]').val()
+		};
+		$.post(url, params, function(data) {
+			var result = $.parseJSON(data);
+			if (result.success)	{
+				fill_form(result.topics);
+			}
+		});
+	});
+
+	$('.btn_delete').click(function(e) {
+		var params = {
+				action: 'delete',
+				page: $(this).siblings('[name=page]').val(),
+				title: $(this).siblings('[name=title]').val(),
+				author: $(this).siblings('[name=author]').val()
+		};
+		$.post(url, params, function(data) {
+			var result = $.parseJSON(data);
+			if (result.success)	{
+				fill_form(result.topics);
+			}
+		});
+	});
+
+	$('.btn_cancel').click(function(e) {
+	});
+
+	$('span[class^="thumb_page_"]').click(function(e) {
+		var page = this.className.split('_').pop();
+		var params = {action: 'show', page: page};
+		$.post(url, params, function(data) {
+			var result = $.parseJSON(data);
+			if (result.success)	{
+				//l(result.topics);
+				fill_form(result.topics);
+			}
+		});
+	});
+
+	$('#add_more').click(function(e) {
+		e.preventDefault();
+	});
+
+	var fill_form = function(hash) {
+			for (var i in hash) {
+				$('input[name="page"]').val(hash[i].page);
+				$('input[name="title"]').val(hash[i].title);
+				$('input[name="old_title"]').val(hash[i].title);
+				$('input[name="author"]').val(hash[i].author);
+			}
+	}
 {% endblock %}

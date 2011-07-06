@@ -1,8 +1,10 @@
 import datetime, time
 import os
+import simplejson as json
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from publication.forms import BookForm, CategoryForm, IssueForm, PeriodicalForm, \
@@ -112,25 +114,6 @@ def create_book(request, publisher_id):
     return render(request, 'publication/book_form.html', {'form': form, 'categories': categories}) 
 
 @login_required
-def create_book_toc(request, publisher_id, book_id):
-    book = get_object_or_404(Book, pk=book_id)
-    if request.method == 'POST':
-        for i in range(100): # TODO: fix range
-            i += 1
-            if request.POST.has_key('toc_%s_page' % i):
-                TopicOfContents(
-                    publication_type=Publication.BOOK,
-                    publication_id=book_id,
-                    page=request.POST.get('toc_%s_page' % i),
-                    title=request.POST.get('toc_%s_title' % i),
-                    author=book.author
-                ).save()
-            else:
-                break
-        return redirect('publication-show-book', publisher_id=publisher_id, book_id=book_id)
-    return render(request, 'publication/toc_form.html', {'obj': book})
-
-@login_required
 def show_book(request, publisher_id, book_id):
     book = get_object_or_404(Book, pk=book_id)
     return render(request, 'publication/book_show.html', {'book': book})
@@ -187,7 +170,7 @@ def update_book_status(request, publisher_id, book_id):
     return render(request, 'publication/status_form.html', {'obj': book, 'status': status})
 
 @login_required
-def update_book_toc(request, publisher_id, book_id):
+def manage_book_toc(request, publisher_id, book_id):
     pass
 
 @login_required
@@ -272,26 +255,6 @@ def create_issue(request, publisher_id, periodical_id):
     return render(request, 'publication/issue_form.html', {'form': form, 'periodical': periodical})
 
 @login_required
-def create_issue_toc(request, publisher_id, periodical_id, issue_id):
-    issue = get_object_or_404(Issue, pk=issue_id)
-    if request.method == 'POST':
-        for i in range(100): # TODO: fix range
-            i += 1
-            if request.POST.has_key('toc_%s_page' % i):
-                TopicOfContents(
-                    publication_type=Publication.PERIODICAL,
-                    publication_id=issue_id,
-                    page=request.POST.get('toc_%s_page' % i),
-                    title=request.POST.get('toc_%s_title' % i),
-                    author=request.POST.get('toc_%s_author' % i)
-                ).save()
-            else:
-                break
-        return redirect('publication-show-issue',
-                    publisher_id=publisher_id, periodical_id=periodical_id, issue_id=issue_id)
-    return render(request, 'publication/toc_form.html', {'obj': issue})
-
-@login_required
 def show_issue(request, publisher_id, periodical_id, issue_id):
     issue = get_object_or_404(Issue, pk=issue_id)
     return render(request, 'publication/issue_show.html', {'issue': issue})
@@ -353,13 +316,57 @@ def update_issue_status(request, publisher_id, periodical_id, issue_id):
     return render(request, 'publication/status_form.html', {'obj': issue, 'status': status})
 
 @login_required
-def update_issue_toc(request, publisher_id, periodical_id, issue_id):
+def manage_issue_toc(request, publisher_id, periodical_id, issue_id):
     issue = get_object_or_404(Issue, pk=issue_id)
-    if request.method == 'POST':
-        pass
-    else:
-        pass 
-    return render(request, 'publication/toc_form.html', {'obj': issue})
+    if request.method == 'POST' and request.is_ajax():
+        action = request.POST.get('action')
+        page = request.POST.get('page')
+        title = request.POST.get('title')
+        old_title = request.POST.get('old_title')
+        author = request.POST.get('author')
+
+        ret = []
+        if action == 'show':
+            topics = issue.topic_of_contents({'page': page})
+            for topic in topics:
+                ret.append({
+                    'page': topic.page, 'title': topic.title, 'author': topic.author
+                }) 
+        elif action == 'create':
+            TopicOfContents.objects.create(
+                publication_type=Publication.PERIODICAL,
+                publication_id=issue_id,
+                page=page,
+                title=title,
+                author=author
+            )
+            ret.append({'page': page, 'title': title, 'author': author})
+        elif action == 'update':
+            try:
+                toc = issue.topic_of_contents({'page': page, 'title': old_title})
+                toc.title = title
+                toc.author = author
+                toc.save()
+            except TopicOfContents.DoesNotExist:
+                TopicOfContents.objects.create(
+                    publication_type=Publication.PERIODICAL,
+                    publication_id=issue_id,
+                    page=page,
+                    title=title,
+                    author=author
+                )
+            ret.append({'page': page, 'title': title, 'author': author})
+        elif action == 'delete':
+            try:
+                issue.topic_of_contents({'page': page, 'title': title}).delete()
+                ret.append({'page': '', 'title': '', 'author': ''})
+            except TopicOfContents.DoesNotExist:
+                return HttpResponse(json.dumps({'success': False}))
+
+        return HttpResponse(json.dumps({'success': True, 'topics': ret}))
+
+    pages = [1, 2, 3]
+    return render(request, 'publication/toc_form.html', {'obj': issue, 'pages': pages})
 
 @login_required
 def delete_issue(request, publisher_id, periodical_id, issue_id):

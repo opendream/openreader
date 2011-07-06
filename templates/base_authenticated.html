@@ -27,6 +27,13 @@
 
 {% block import %}{% endblock %}
 
-{% block js_base %}{% endblock %}
+{% block js_base %}
+	<script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ajax-csrf.js"></script>
+	<script type="text/javascript">
+		var l = function(str) {
+			console.log(str);	
+		}
+	</script>
+{% endblock %}
 
 {% block js %}{% endblock %}
