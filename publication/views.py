@@ -152,9 +152,19 @@ def update_book_status(request, publisher_id, book_id):
     if request.method == 'POST':
         status = int(request.POST['status'])
         if status == Publication.STATUS_PENDING:
-            pending_until = "%s %s" % (request.POST['pending_date'], request.POST['pending_time'])
-            pending_until = datetime.datetime.strptime(pending_until, '%Y/%m/%d %H:%M')
-            book.pending_until = pending_until
+            try:
+                pending_until = "%s %s" % (request.POST['pending_date'], request.POST['pending_time'])
+                pending_until = datetime.datetime.strptime(pending_until, '%Y/%m/%d %H:%M')
+                book.pending_until = pending_until
+            except ValueError:
+                book.status = status
+                status = {
+                    'DRAFT': Publication.STATUS_DRAFT,
+                    'PENDING': Publication.STATUS_PENDING,
+                    'PUBLISHED': Publication.STATUS_PUBLISHED,
+                    'UNPUBLISHED': Publication.STATUS_UNPUBLISHED
+                }
+                return render(request, 'publication/status_form.html', {'obj': book, 'status': status})
         else:
             if book.pending_until:
                 book.pending_until = None
@@ -346,9 +356,19 @@ def update_issue_status(request, publisher_id, periodical_id, issue_id):
     if request.method == 'POST':
         status = int(request.POST['status'])
         if status == Publication.STATUS_PENDING:
-            pending_until = "%s %s" % (request.POST['pending_date'], request.POST['pending_time'])
-            pending_until = datetime.datetime.strptime(pending_until, '%Y/%m/%d %H:%M')
-            issue.pending_until = pending_until
+            try:
+                pending_until = "%s %s" % (request.POST['pending_date'], request.POST['pending_time'])
+                pending_until = datetime.datetime.strptime(pending_until, '%Y/%m/%d %H:%M')
+                issue.pending_until = pending_until
+            except ValueError:
+                issue.status = status
+                status = {
+                    'DRAFT': Publication.STATUS_DRAFT,
+                    'PENDING': Publication.STATUS_PENDING,
+                    'PUBLISHED': Publication.STATUS_PUBLISHED,
+                    'UNPUBLISHED': Publication.STATUS_UNPUBLISHED
+                }
+                return render(request, 'publication/status_form.html', {'obj': issue, 'status': status})
         else:
             if issue.pending_until:
                 issue.pending_until = None
