@@ -8,12 +8,41 @@
 {% block content %}
 	<div>
 		Draft Issues
+		{% for issue in publisher.draft_issues %}
+			<div>
+				{{ issue.periodical.title }}<br />
+				<a href="{% url publication-show-issue publisher.id issue.periodical.id issue.id %}">Vol. {{ issue.issued_at|date:"j M Y" }}</a><br />
+				<a href="{% url publication-update-issue publisher.id issue.periodical.id issue.id %}">Edit Issue</a>
+			</div>
+		{% endfor %}
 	</div>
 	<div>
 		Pending Issues
+		{% for issue in publisher.pending_issues %}
+			<div>
+				{{ issue.periodical.title }}<br />
+				<a href="{% url publication-show-issue publisher.id issue.periodical.id issue.id %}">Vol. {{ issue.issued_at|date:"j M Y" }}</a><br />
+				{{ issue.get_status_display }}
+				{% if issue.status == 2 %}
+					until {{ issue.pending_until|date:"d F Y h:i A" }}
+				{% endif %}<br />
+				<a href="{% url publication-update-issue-status issue.periodical.publisher.id issue.periodical.id issue.id %}">Change Status</a>
+				<a href="{% url publication-update-issue publisher.id issue.periodical.id issue.id %}">Edit Issue</a>
+			</div>
+		{% endfor %}
 	</div>
 	<div>
 		Published Issues
+		{% for issue in publisher.published_issues %}
+			<div>
+				{{ issue.periodical.title }}<br />
+				<a href="{% url publication-show-issue publisher.id issue.periodical.id issue.id %}">Vol. {{ issue.issued_at|date:"j M Y" }}</a><br />
+				{{ issue.get_status_display }}
+				{% if issue.status == 3 %}
+					on {{ issue.pending_until|date:"d F Y h:i A" }}
+				{% endif %}
+			</div>
+		{% endfor %}
 	</div>
 {% endblock %}
 

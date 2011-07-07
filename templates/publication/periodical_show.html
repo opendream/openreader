@@ -6,7 +6,7 @@
 {% block content %}
 	{% for issue in periodical.issues %}
 		<div class="issue">
-			{{ issue.issued_at }}	
+			Vol. {{ issue.issued_at|date:"j M Y" }}
 			<a href="{% url publication-update-issue periodical.publisher.id periodical.id issue.id %}">Edit Issue</a>
 		</div>
 	{% endfor %}

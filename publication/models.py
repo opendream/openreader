@@ -59,7 +59,10 @@ class PublicationManager:
             return ''
 
     def thumbnail_pages(self):
-        return [1, 2, 3]
+        return [1, 2, 3] # TODO: generate thumbnail of pages
+
+    def instance_of(self):
+        return self.__class__.__name__
 
 # DB Models --------------------------------------------------------------------
 
@@ -67,6 +70,21 @@ class Publisher(Loggable):
     owner = models.ForeignKey(User, related_name='owner')
     collaborators = models.ManyToManyField(User, related_name='collaborators')
     name = models.CharField(max_length=255)
+
+    def draft_issues(self):
+        periodicals = self.periodical_set.all().values('pk')
+        return Issue.objects.filter(periodical__in=periodicals,
+                                    status=Publication.STATUS_DRAFT)
+
+    def pending_issues(self):
+        periodicals = self.periodical_set.all().values('pk')
+        return Issue.objects.filter(periodical__in=periodicals,
+                                    status=Publication.STATUS_PENDING)
+
+    def published_issues(self):
+        periodicals = self.periodical_set.all().values('pk')
+        return Issue.objects.filter(periodical__in=periodicals,
+                                    status=Publication.STATUS_PUBLISHED)
 
 
 class Publication(Loggable):
@@ -104,9 +122,6 @@ class Book(Publication, PublicationManager):
 
     TYPE = Publication.BOOK
 
-    def instance_of(self):
-        return 'Book'
-
 
 class Periodical(Publication):
     periodical_type = models.IntegerField(choices=PERIODICAL_TYPES, default=1, db_index=True)
@@ -121,9 +136,6 @@ class Issue(Loggable, PublicationManager):
     pending_until = models.DateTimeField(null=True, blank=True)
 
     TYPE = Publication.PERIODICAL
-
-    def instance_of(self):
-        return 'Issue'
 
 
 class FileUpload(Loggable):
