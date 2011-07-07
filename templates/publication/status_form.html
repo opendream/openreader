@@ -21,10 +21,10 @@
 			</div>
 			<div>
 				<label for="pending_date">Date</label>
-				<input name="pending_date" id="pending_date" />
+				<input name="pending_date" id="pending_date" value="{{ obj.pending_until|date:"Y/m/d" }}" />
 				<label for="pending_time">Time</label>
 				<select name="pending_time" id="pending_time">
-					{% render_pending_time_options %}
+					{% render_pending_time_options obj.pending_until %}
 				</select>
 			</div>
 		</div>
