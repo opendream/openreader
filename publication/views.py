@@ -171,11 +171,56 @@ def update_book_status(request, publisher_id, book_id):
 
 @login_required
 def manage_book_toc(request, publisher_id, book_id):
-    pass
+    book = get_object_or_404(Book, pk=book_id)
+    if request.method == 'POST' and request.is_ajax():
+        action = request.POST.get('action')
+        page = request.POST.get('page')
+        title = request.POST.get('title')
+        old_title = request.POST.get('old_title')
+
+        ret = []
+        if action == 'show':
+            topics = book.topic_of_contents({'page': page})
+            for topic in topics:
+                ret.append({'page': topic.page, 'title': topic.title})
+            if len(ret) == 0:
+                ret.append({'page': page, 'title': ''})
+        elif action == 'create':
+            TopicOfContents.objects.create(
+                publication_type=Publication.BOOK,
+                publication_id=book_id,
+                page=page,
+                title=title
+            )
+            ret.append({'page': page, 'title': title})
+        elif action == 'update':
+            try:
+                toc = book.topic_of_contents({'page': page, 'title': old_title})
+                toc.title = title
+                toc.save()
+            except TopicOfContents.DoesNotExist:
+                TopicOfContents.objects.create(
+                    publication_type=Publication.BOOK,
+                    publication_id=book_id,
+                    page=page,
+                    title=title
+                )
+            ret.append({'page': page, 'title': title})
+        elif action == 'delete':
+            try:
+                book.topic_of_contents({'page': page, 'title': title}).delete()
+                ret.append({'page': '', 'title': ''})
+            except TopicOfContents.DoesNotExist:
+                return HttpResponse(json.dumps({'success': False}))
+
+        return HttpResponse(json.dumps({'success': True, 'topics': ret}))
+
+    pages = book.thumbnail_pages
+    return render(request, 'publication/toc_form.html', {'obj': book, 'pages': pages})
 
 @login_required
 def delete_book(request, publisher_id, book_id):
-    pass
+    get_object_or_404(Book, pk=book_id).delete()
 
 @login_required
 def index_periodical(request, publisher_id):
@@ -224,6 +269,10 @@ def update_periodical(request, publisher_id, periodical_id):
     return render(request, 'publication/periodical_form.html',
                 {'form': form, 'periodical_categories': periodical_categories,
                  'categories': categories})
+
+@login_required
+def delete_periodical(request, publisher_id, periodical_id):
+    get_object_or_404(Periodical, pk=periodical_id).delete()
 
 @login_required
 def index_issue(request, publisher_id, periodical_id):
@@ -331,7 +380,9 @@ def manage_issue_toc(request, publisher_id, periodical_id, issue_id):
             for topic in topics:
                 ret.append({
                     'page': topic.page, 'title': topic.title, 'author': topic.author
-                }) 
+                })
+            if len(ret) == 0:
+                ret.append({'page': page, 'title': '', 'author': ''})
         elif action == 'create':
             TopicOfContents.objects.create(
                 publication_type=Publication.PERIODICAL,
@@ -365,12 +416,12 @@ def manage_issue_toc(request, publisher_id, periodical_id, issue_id):
 
         return HttpResponse(json.dumps({'success': True, 'topics': ret}))
 
-    pages = [1, 2, 3]
+    pages = issue.thumbnail_pages
     return render(request, 'publication/toc_form.html', {'obj': issue, 'pages': pages})
 
 @login_required
 def delete_issue(request, publisher_id, periodical_id, issue_id):
-    pass
+    get_object_or_404(Issue, pk=issue_id).delete()
 
 # private ----------------------------------------------------------------------
 

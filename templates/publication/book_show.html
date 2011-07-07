@@ -29,7 +29,7 @@
 {% block navigation %}
 	<ul>
 		<li><a href="{% url publication-update-book book.publisher.id book.id %}">Edit Book</a></li>
-		<li><a href="{% url publication-update-book-toc book.publisher.id book.id %}">Update Table of Contents</a></li>
+		<li><a href="{% url publication-manage-book-toc book.publisher.id book.id %}">Update Table of Contents</a></li>
 		<li><a href="{% url publication-update-book-status book.publisher.id book.id %}">Change Status</a></li>
 	</ul>
 {% endblock %}

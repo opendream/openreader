@@ -22,7 +22,7 @@
 {% block navigation %}
 	<ul>
 		<li><a href="{% url publication-update-issue issue.periodical.publisher.id issue.periodical.id issue.id %}">Edit</a></li>
-		<li><a href="{% url publication-update-issue-toc issue.periodical.publisher.id issue.periodical.id issue.id %}">Update Table of Contents</a></li>
+		<li><a href="{% url publication-manage-issue-toc issue.periodical.publisher.id issue.periodical.id issue.id %}">Update Table of Contents</a></li>
 		<li><a href="{% url publication-update-issue-status issue.periodical.publisher.id issue.periodical.id issue.id %}">Change Status</a></li>
 	</ul>
 {% endblock %}

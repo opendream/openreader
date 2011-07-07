@@ -58,6 +58,9 @@ class PublicationManager:
         except:
             return ''
 
+    def thumbnail_pages(self):
+        return [1, 2, 3]
+
 # DB Models --------------------------------------------------------------------
 
 class Publisher(Loggable):
@@ -101,7 +104,7 @@ class Book(Publication, PublicationManager):
 
     TYPE = Publication.BOOK
 
-    def instance(self):
+    def instance_of(self):
         return 'Book'
 
 
@@ -119,7 +122,7 @@ class Issue(Loggable, PublicationManager):
 
     TYPE = Publication.PERIODICAL
 
-    def instance(self):
+    def instance_of(self):
         return 'Issue'
 
 
