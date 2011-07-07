@@ -1,15 +1,45 @@
 {% extends 'base_authenticated.html' %}
 
-{% block head_title %}Create Publisher{% endblock %}
-{% block page_title %}Create Publisher{% endblock %}
+{% block head_title %}
+	{% if publisher %} Update Publisher {% else %} Create Publisher {% endif %}
+{% endblock %}
 
-{% block main %}
+{% block page_title %}
+	{% if publisher %} Update Publisher {% else %} Create Publisher {% endif %}
+{% endblock %}
+
+{% block meta %}{{ publisher.name }}{% endblock %}
+
+{% block content %}
+	{% if publisher %}
+		<ul class="tabs">
+			<li><a href="{% url publication-update-publisher publisher.id %}">Profile</a></li>
+			<li><a href="{% url publication-show-publisher publisher.id %}">Magazines</a></li>
+			<li><a href="{% url publication-publisher-team publisher.id %}">Team</a></li>
+		</ul>
+	{% endif %}
+
 	<form method="POST">
 		{{ form.non_field_errors }}
 		<div>
-			<label for="id_name">Name:</label><br />
+			<label for="id_name">Publisher Name:</label><br />
 			{{ form.name.errors }}
 			{{ form.name }}
+		</div>
+		<div>
+			<label for="id_name">Address:</label><br />
+			{{ form.address.errors }}
+			{{ form.address }}
+		</div>
+		<div>
+			<label for="id_name">Telephone:</label><br />
+			{{ form.telephone.errors }}
+			{{ form.telephone }}
+		</div>
+		<div>
+			<label for="id_name">Website:</label><br />
+			{{ form.website.errors }}
+			{{ form.website }}
 		</div>
 		<div>
 			<input type="submit" value="Save" />

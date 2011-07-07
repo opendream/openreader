@@ -4,13 +4,15 @@ import simplejson as json
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Permission, User
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from publication.forms import BookForm, CategoryForm, IssueForm, PeriodicalForm, \
                               PublisherForm
 from publication.models import Book, Category, FileUpload, Issue, Periodical, \
-                               Publication, Publisher, TopicOfContents \
+                               Publication, Publisher, PublisherUserPermission, \
+                               TopicOfContents \
 
 
 @login_required
@@ -35,7 +37,7 @@ def create_publisher(request):
             publisher = form.save(commit=False)
             publisher.owner = request.user
             publisher.save()
-            return redirect('publication-show-publisher', id=publisher.id)
+            return redirect('publication-publisher-dashboard', id=publisher.id)
     else:
         form = PublisherForm()
     return render(request, 'publication/publisher_form.html', {'form': form})
@@ -52,10 +54,64 @@ def update_publisher(request, id):
         form = PublisherForm(request.POST, instance=publisher)
         if form.is_valid():
             form.save()
-            return redirect('publication-show-publisher', pk=id)
+            return redirect('publication-publisher-dashboard', id=id)
     else:
         form = PublisherForm(instance=publisher)
-    return render(request, 'publication/publisher_form.html', {'form': form})
+    return render(request, 'publication/publisher_form.html', {'form': form, 'publisher': publisher})
+
+@login_required
+def publisher_team(request, id):
+    publisher = get_object_or_404(Publisher, pk=id)
+    if request.method == 'POST' and request.is_ajax():
+        action = request.POST.get('action')
+        user_id = request.POST.get('user_id')
+
+        try:
+            user = User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return HttpResponse(json.dumps({'success': False}))
+
+        collaborators = []
+        for collaborator in publisher.collaborators.all():
+            collaborators.append(collaborator)
+
+        if action == 'create':
+            if user not in collaborators:
+                collaborators.append(user)
+                publisher.collaborators = collaborators
+                publisher.save()
+                return HttpResponse(json.dumps({'success': True}))
+        elif action == 'update_permission':
+            permissions = []
+            pub_user_permissions = PublisherUserPermission.objects.filter(
+                                        publisher=publisher, user=user)
+            for p in pub_user_permissions:
+                permissions.append(p.permission)
+
+            permissions_post = request.POST.get('permissions') 
+            for p in permissions_post:
+                auth_permission = Permission.objects.get(pk=p)
+                if auth_permission not in permissions:
+                    permissions.append(auth_permission)
+
+            for p in permissions:
+                PublisherUserPermission.objects.create(
+                    publisher=publisher,
+                    user=user,
+                    permission=p
+                )
+            return HttpResponse(json.dumps({'success': True}))
+        elif action == 'delete':
+            if publisher.owner == user:
+                return HttpResponse(json.dumps({'success': False}))
+
+            if user in collaborators:
+                collaborators.remove(user)
+                publisher.collaborators = collaborators
+                publisher.save()
+                return HttpResponse(json.dumps({'success': True}))
+        return HttpResponse(json.dumps({'success': False}))
+    return render(request, 'publication/publisher_team.html', {'publisher': publisher})
 
 @login_required
 def index_category(request):
@@ -278,7 +334,7 @@ def update_periodical(request, publisher_id, periodical_id):
         periodical_categories.append(category.id)
     return render(request, 'publication/periodical_form.html',
                 {'form': form, 'periodical_categories': periodical_categories,
-                 'categories': categories})
+                 'categories': categories, 'periodical_id': periodical_id})
 
 @login_required
 def delete_periodical(request, publisher_id, periodical_id):
@@ -307,8 +363,6 @@ def create_issue(request, publisher_id, periodical_id):
                 path=path)
             return redirect('publication-show-issue',
                         publisher_id=publisher_id, periodical_id=periodical_id, issue_id=issue.id)
-        else:
-            print form
     else:
         form = IssueForm()
     return render(request, 'publication/issue_form.html', {'form': form, 'periodical': periodical})
@@ -348,7 +402,7 @@ def update_issue(request, publisher_id, periodical_id, issue_id):
                         publisher_id=publisher_id, periodical_id=periodical_id, issue_id=issue_id)
     else:
         form = IssueForm(instance=issue, initial={'issue_id': issue_id})
-    return render(request, 'publication/issue_form.html', {'form': form, 'issue_id': issue_id}) 
+    return render(request, 'publication/issue_form.html', {'form': form, 'issue': issue})
 
 @login_required
 def update_issue_status(request, publisher_id, periodical_id, issue_id):

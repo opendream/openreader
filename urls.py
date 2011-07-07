@@ -6,7 +6,6 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
 
     (r'^accounts/', include('registration.urls')),
@@ -47,8 +46,8 @@ urlpatterns += patterns('publication.views',
         name='publication-update-publisher'),
     url(r'^publishers/(?P<id>\d+)/dashboard/$', 'publisher_dashboard',
         name='publication-publisher-dashboard'),
-    url(r'^publishers/(?P<id>\d+)/management/$', 'manage_publisher',
-        name='publication-manage-publisher'),
+    url(r'^publishers/(?P<id>\d+)/team/$', 'publisher_team',
+        name='publication-publisher-team'),
 
     url(r'^publishers/(?P<publisher_id>\d+)/books/$', 'index_book',
         name='publication-index-book'),

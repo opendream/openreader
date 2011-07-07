@@ -9,7 +9,7 @@ from publication.models import Book, Category, Issue, Periodical, Publisher, \
 class PublisherForm(forms.ModelForm):
     class Meta:
         model = Publisher
-        fields = ('name',)
+        fields = ('name', 'address', 'telephone', 'website')
 
 
 class BookForm(forms.ModelForm):

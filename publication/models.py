@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Permission, User
 from django.db import models
 
 #from djangotoolbox.fields import EmbeddedModelField, ListField
@@ -69,7 +69,10 @@ class PublicationManager:
 class Publisher(Loggable):
     owner = models.ForeignKey(User, related_name='owner')
     collaborators = models.ManyToManyField(User, related_name='collaborators')
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=100)
+    address = models.CharField(max_length=255, null=True, blank=True)
+    telephone = models.CharField(max_length=20, null=True, blank=True)
+    website = models.CharField(max_length=100, null=True, blank=True)
 
     def draft_issues(self):
         periodicals = self.periodical_set.all().values('pk')
@@ -137,6 +140,9 @@ class Issue(Loggable, PublicationManager):
 
     TYPE = Publication.PERIODICAL
 
+    class Meta:
+        get_latest_by = 'created_at'
+
 
 class FileUpload(Loggable):
     uploader = models.ForeignKey(User)
@@ -159,6 +165,12 @@ class TopicOfContents(Loggable):
 class Category(Loggable):
     name = models.CharField(max_length=100)
     slug = models.CharField(max_length=100)
+
+
+class PublisherUserPermission(Loggable):
+    publisher = models.ForeignKey(Publisher)
+    user = models.ForeignKey(User)
+    permission = models.ForeignKey(Permission)
 
 
 # MongoDB ---------------------------------------------------------------------

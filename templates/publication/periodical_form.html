@@ -1,7 +1,12 @@
 {% extends 'base_authenticated.html' %}
 
-{% block head_title %}Create Periodical{% endblock %}
-{% block page_title %}Create Periodical{% endblock %}
+{% block head_title %}
+	{% if periodical_id %} Update Periodical {% else %} Create Periodical {% endif %}
+{% endblock %}
+
+{% block page_title %}
+	{% if periodical_id %} Update Periodical {% else %} Create Periodical {% endif %}
+{% endblock %}
 
 {% block main %}
 	<form method="POST">

@@ -3,13 +3,38 @@
 {% block head_title %}{{ publisher.name }}{% endblock %}
 {% block page_title %}{{ publisher.name }}{% endblock %}
 
-{% block content %}
-	{{ publisher.name }}
-{% endblock %}
+{% block meta %}{{ publisher.name }}{% endblock %}
 
-{% block navigation %}
-	<ul>
-		<li><a href="{% url publication-update-publisher publisher.id %}">Edit</a></li>
-		<li><a href="{% url publication-create-book publisher.id %}">Create Publication</a></li>
+{% block content %}
+	<ul class="tabs">
+		<li><a href="{% url publication-update-publisher publisher.id %}">Profile</a></li>
+		<li><a href="{% url publication-show-publisher publisher.id %}">Magazines</a></li>
+		<li><a href="{% url publication-publisher-team publisher.id %}">Team</a></li>
 	</ul>
+
+	<ul>
+		<li><a href="{% url publication-create-periodical publisher.id %}">Create New Magazine</a></li>
+		<li><a href="{% url publication-create-book publisher.id %}">Create New Book</a></li>
+	</ul>
+
+	<div class="periodicals">
+		{% for periodical in publisher.periodical_set.all %}
+			<div>
+				{{ periodical.title }}<br />
+				<span>Total Issues: {% with total=periodical.issue_set.count %} {{ total }}{% if total > 0 %} issue{{ total|pluralize }}{% endif %}{% endwith %}</span>
+				{% if periodical.issue_set.latest %}
+					<span>Latest Issue: {{ periodical.issue_set.latest.issued_at|date:"j M Y" }}</span>
+				{% endif %}<br />
+				<a href="{% url publication-show-periodical publisher.id periodical.id %}">View All Issues</a>
+			</div>
+		{% endfor %}
+	</div>
+
+	<div class="books">
+		{% for book in publisher.book_set.all %}
+			<div>
+				{{ book.title }}
+			</div>
+		{% endfor %}
+	</div>
 {% endblock %}

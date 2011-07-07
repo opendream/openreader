@@ -1,11 +1,10 @@
 {% extends 'base_authenticated.html' %}
 
-{% block head_title %}Issue: {{ book.title }}{% endblock %}
-{% block page_title %}Issue: {{ book.title }}{% endblock %}
+{% block head_title %}Issue Vol. {{ issue.issued_at|date:"j M Y" }}{% endblock %}
+{% block page_title %}Issue Vol. {{ issue.issued_at|date:"j M Y" }}{% endblock %}
 
 {% block content %}
 	<p>Title: {{ issue.periodical.title }}</p>
-	<p>Vol. {{ issue.issued_at|date:"j M Y" }}</p>
 	<p>
 		Status:
 		{{ issue.get_status_display }}

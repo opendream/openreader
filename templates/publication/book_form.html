@@ -1,7 +1,12 @@
 {% extends 'base_authenticated.html' %}
 
-{% block head_title %}Create Book{% endblock %}
-{% block page_title %}Create Book{% endblock %}
+{% block head_title %}
+	{% if book_id %} Update Book {% else %} Create Book {% endif %}
+{% endblock %}
+
+{% block page_title %}
+	{% if book_id %} Update Book {% else %} Create Book {% endif %}
+{% endblock %}
 
 {% block main %}
 	<form method="POST" enctype="multipart/form-data">

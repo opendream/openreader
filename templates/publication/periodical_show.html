@@ -4,7 +4,7 @@
 {% block page_title %}Magazine: {{ periodical.title }}{% endblock %}
 
 {% block content %}
-	{% for issue in periodical.issues %}
+	{% for issue in periodical.issue_set.all %}
 		<div class="issue">
 			Vol. {{ issue.issued_at|date:"j M Y" }}
 			<a href="{% url publication-update-issue periodical.publisher.id periodical.id issue.id %}">Edit Issue</a>

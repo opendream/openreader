@@ -1,0 +1,80 @@
+{% extends 'base_authenticated.html' %}
+
+{% block head_title %}Publisher: Manage Team{% endblock %}
+{% block page_title %}Publisher: Manage Team{% endblock %}
+
+{% block content %}
+	<ul class="tabs">
+		<li><a href="{% url publication-update-publisher publisher.id %}">Profile</a></li>
+		<li><a href="{% url publication-show-publisher publisher.id %}">Magazines</a></li>
+		<li><a href="{% url publication-publisher-team publisher.id %}">Team</a></li>
+	</ul>
+
+	<a href="javascript:create_member();">Add Team Member</a>
+	<div class="member">
+		<div class="photo"></div>
+		<div>
+			{{ publisher.owner.first_name }} {{ publisher.owner.last_name }}<br />
+			{{ publisher.owner.username }} (Creator)<br />
+			<a href="javascript:update_member();" class="update_member">Permissions</a>
+			<a href="javascript:delete_member();" class="delete_member">Leave</a>
+			<input type="hidden" name="user_id" value="{{ publisher.owner.id }}" />
+		</div>
+	</div>
+	{% for member in publisher.collaborators.all %}
+		<div class="member">
+			<div class="photo"></div>
+			<div>
+				{{ member.first_name }} {{ member.last_name }}<br />
+				{{ member.username }}<br />
+				<a href="javascript:update_member();" class="update_member">Permissions</a>
+				<a href="javascript:delete_member();" class="delete_member">Remove</a>
+				<input type="hidden" name="user_id" value="{{ member.id }}" />
+			</div>
+		</div>
+	{% endfor %}
+{% endblock %}
+
+{% block js %}
+	var url = '{% url publication-publisher-team publisher.id %}';
+	var create_member = function() {
+		var user_id = '';
+		var params = {
+			action: 'create',
+			user_id: 1 // TODO: create textbox to get user_id
+		};
+		$.post(url, params, function(data) {
+			var result = $.parseJSON(data);
+			if (result.success) {
+				location.reload(true);
+			}
+		});
+	};
+
+	$('.update_member').click(function(e) {
+		e.preventDefault();
+		var params = {
+			action: 'update_permission',
+			permissions: [1, 2, 3]
+		};
+		$.post(url, params, function(data) {
+			var result = $.parseJSON(data);
+			if (result.success) {
+			}
+		});
+	});
+
+	$('.delete_member').click(function() {
+		e.preventDefault();
+		var params = {
+			action: 'delete',
+			user_id: $(this).siblings('[name=user_id]').val()
+		};
+		$.post(url, params, function(data) {
+			var result = $.parseJSON(data);
+			if (result.success) {
+				location.reload(true);
+			}
+		});
+	});
+{% endblock %}

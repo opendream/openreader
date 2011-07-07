@@ -1,7 +1,20 @@
 {% extends 'base_authenticated.html' %}
 
-{% block head_title %}Create issue of {{ periodical.title }}{% endblock %}
-{% block page_title %}Create Issue of {{ periodical.title }}{% endblock %}
+{% block head_title %}
+	{% if issue.id %}
+		Update Issue Vol. {{ issue.issued_at|date:"j M Y" }}
+	{% else %}
+		Create Issue of {{ periodical.title }}
+	{% endif %}
+{% endblock %}
+
+{% block page_title %}
+	{% if issue.id %}
+		Update Issue Vol. {{ issue.issued_at|date:"j M Y" }}
+	{% else %}
+		Create Issue of {{ periodical.title }}
+	{% endif %}
+{% endblock %}
 
 {% block main %}
 	<form method="POST" enctype="multipart/form-data">
@@ -20,7 +33,7 @@
 			{{ form.file_upload.errors }}
 			{{ form.file_upload }}
 		</div>
-		{% if issue_id %}
+		{% if issue.id %}
 			{{ form.issue_id }}
 		{% endif %}
 		<input type="submit" value="Save" />
