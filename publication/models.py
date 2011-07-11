@@ -172,6 +172,9 @@ class PublisherUserPermission(Loggable):
     user = models.ForeignKey(User)
     permission = models.ForeignKey(Permission)
 
+    class Meta:
+        db_table = 'publication_publisher_user_permissions'
+
 
 # MongoDB ---------------------------------------------------------------------
 

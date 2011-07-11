@@ -82,24 +82,27 @@ def publisher_team(request, id):
                 publisher.save()
                 return HttpResponse(json.dumps({'success': True}))
         elif action == 'update_permission':
-            permissions = []
+            new_permissions = []
+            old_permissions = []
             pub_user_permissions = PublisherUserPermission.objects.filter(
                                         publisher=publisher, user=user)
             for p in pub_user_permissions:
-                permissions.append(p.permission)
+                old_permissions.append(p.permission)
 
-            permissions_post = request.POST.get('permissions') 
+            permissions_post = json.loads(request.POST.get('permissions'))
             for p in permissions_post:
-                auth_permission = Permission.objects.get(pk=p)
-                if auth_permission not in permissions:
-                    permissions.append(auth_permission)
+                new_permissions.append(get_object_or_404(Permission, pk=p))
 
-            for p in permissions:
-                PublisherUserPermission.objects.create(
-                    publisher=publisher,
-                    user=user,
-                    permission=p
-                )
+            for p in old_permissions:
+                if p not in new_permissions:
+                    pub_user_permissions.get(permission=p).delete()
+            for p in new_permissions:
+                if p not in old_permissions:
+                    PublisherUserPermission.objects.create(
+                        publisher=publisher,
+                        user=user,
+                        permission=p
+                    )
             return HttpResponse(json.dumps({'success': True}))
         elif action == 'delete':
             if publisher.owner == user:

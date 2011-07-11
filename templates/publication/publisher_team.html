@@ -38,7 +38,6 @@
 {% block js %}
 	var url = '{% url publication-publisher-team publisher.id %}';
 	var create_member = function() {
-		var user_id = '';
 		var params = {
 			action: 'create',
 			user_id: 1 // TODO: create textbox to get user_id
@@ -55,7 +54,8 @@
 		e.preventDefault();
 		var params = {
 			action: 'update_permission',
-			permissions: [1, 2, 3]
+			user_id: $(this).siblings('[name=user_id]').val(),
+			permissions: JSON.stringify([10, 11, 12]) // TODO: create checkboxes to get permission_ids
 		};
 		$.post(url, params, function(data) {
 			var result = $.parseJSON(data);
