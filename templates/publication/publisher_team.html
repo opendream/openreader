@@ -51,21 +51,35 @@
 	});
 
 	$('.update_member').click(function(e) {
-		e.preventDefault();
+		var user_id = $(this).siblings('[name=user_id]').val();
 		var params = {
-			action: 'update_permission',
-			user_id: $(this).siblings('[name=user_id]').val(),
-			permissions: JSON.stringify([10, 11, 12]) // TODO: create checkboxes to get permission_ids
-		};
+			action: 'show',
+			user_id: user_id
+		}
 		$.post(url, params, function(data) {
 			var result = $.parseJSON(data);
 			if (result.success) {
+
+				// TODO: show given user permissions dialog.
+				// permissions = result.permissions
+
+				if (false) { // TODO: change this to TRUE if 'save' button is pressed.
+					params = {
+						action: 'update',
+						user_id: user_id,
+						permissions: JSON.stringify([10, 11, 12]) // TODO: get selected permission_ids
+					};
+					$.post(url, params, function(data) {
+						var result = $.parseJSON(data);
+						if (result.success) {
+						}
+					});
+				}
 			}
 		});
 	});
 
 	$('.delete_member').click(function(e) {
-		e.preventDefault();
 		var params = {
 			action: 'delete',
 			user_id: $(this).siblings('[name=user_id]').val()

@@ -5,6 +5,7 @@ import simplejson as json
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Permission, User
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -75,13 +76,20 @@ def publisher_team(request, id):
         for collaborator in publisher.collaborators.all():
             collaborators.append(collaborator)
 
-        if action == 'create':
+        if action == 'show':
+            permissions = []
+            pub_user_permissions = PublisherUserPermission.objects.filter(
+                                        publisher=publisher, user=user)
+            for p in pub_user_permisssions:
+                permissions.append(p.permission)
+            return HttpResponse(json.dumps({'success': True, 'permissions': permissions}))
+        elif action == 'create':
             if user not in collaborators:
                 collaborators.append(user)
                 publisher.collaborators = collaborators
                 publisher.save()
                 return HttpResponse(json.dumps({'success': True}))
-        elif action == 'update_permission':
+        elif action == 'update':
             new_permissions = []
             old_permissions = []
             pub_user_permissions = PublisherUserPermission.objects.filter(
@@ -118,7 +126,12 @@ def publisher_team(request, id):
                 
                 return HttpResponse(json.dumps({'success': True}))
         return HttpResponse(json.dumps({'success': False}))
-    return render(request, 'publication/publisher_team.html', {'publisher': publisher})
+    
+    content_type = ContentType.objects.get_by_natural_key(
+                        'publication', 'publisheruserpermission')
+    auth_permissions = Permission.objects.filter(content_type=content_type)
+    return render(request, 'publication/publisher_team.html',
+                {'publisher': publisher, 'auth_permissions': auth_permissions})
 
 @login_required
 def index_category(request):

@@ -120,7 +120,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #'django.contrib.admindocs',
     'django.contrib.admin',
 
     'registration',

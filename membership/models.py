@@ -1,9 +1,11 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from common.models import Loggable
+from publication.models import Publisher
 
 
 MEMBERSHIP_TYPES = (
@@ -20,6 +22,9 @@ class Profile(Loggable):
     TYPE_READER = '1'
     TYPE_PUBLISHER = '2'
 
+    def publishers(self):
+        return Publisher.objects.filter(Q(owner=self.user) | \
+                                        Q(collaborators=self.user))
 
 @receiver(post_save)
 def create_profile(sender, **kwargs):

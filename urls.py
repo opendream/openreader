@@ -7,14 +7,12 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
-
-    (r'^accounts/', include('registration.urls')),
+    url(r'^accounts/', include('registration.urls')),
 )
 
 urlpatterns += patterns('common.views',
     url(r'^$', 'index', name='index'),
     url(r'^dashboard/$', 'dashboard', name='dashboard'),
-    url(r'^settings/$', 'setting', name='setting'),
 
     #(r'^membership/', include('membership.urls')),
     #(r'^subscription/', include('subscription.urls')),

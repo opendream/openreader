@@ -3,6 +3,17 @@
 {% block head_title %}Dashboard{% endblock %}
 {% block page_title %}Dashboard{% endblock %}
 
-{% block main %}
+{% block content %}
+	{% if user.get_profile.publishers %}
+		<h3>Your publishers</h3>
+		<ul>
+			{% for p in user.get_profile.publishers %}
+				<li><a href="{% url publication-publisher-dashboard p.id %}">{{ p.name }}</a></li>
+			{% endfor %}
+		</ul>
+	{% endif %}
+{% endblock %}
+
+{% block navigation %}
 	<a href="{% url publication-create-publisher %}">Create Publisher</a>
 {% endblock %}

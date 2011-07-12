@@ -64,6 +64,7 @@ class PublicationManager:
     def instance_of(self):
         return self.__class__.__name__
 
+
 # DB Models --------------------------------------------------------------------
 
 class Publisher(Loggable):
