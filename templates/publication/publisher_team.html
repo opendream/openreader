@@ -10,14 +10,14 @@
 		<li><a href="{% url publication-publisher-team publisher.id %}">Team</a></li>
 	</ul>
 
-	<a href="javascript:create_member();">Add Team Member</a>
+	<a href="javascript:void(0);" class="create_member">Add Team Member</a>
 	<div class="member">
 		<div class="photo"></div>
 		<div>
 			{{ publisher.owner.first_name }} {{ publisher.owner.last_name }}<br />
 			{{ publisher.owner.username }} (Creator)<br />
-			<a href="javascript:update_member();" class="update_member">Permissions</a>
-			<a href="javascript:delete_member();" class="delete_member">Leave</a>
+			<a href="javascript:void(0);" class="update_member">Permissions</a>
+			<a href="javascript:void(0);" class="delete_member">Leave</a>
 			<input type="hidden" name="user_id" value="{{ publisher.owner.id }}" />
 		</div>
 	</div>
@@ -27,8 +27,8 @@
 			<div>
 				{{ member.first_name }} {{ member.last_name }}<br />
 				{{ member.username }}<br />
-				<a href="javascript:update_member();" class="update_member">Permissions</a>
-				<a href="javascript:delete_member();" class="delete_member">Remove</a>
+				<a href="javascript:void(0);" class="update_member">Permissions</a>
+				<a href="javascript:void(0);" class="delete_member">Remove</a>
 				<input type="hidden" name="user_id" value="{{ member.id }}" />
 			</div>
 		</div>
@@ -37,7 +37,7 @@
 
 {% block js %}
 	var url = '{% url publication-publisher-team publisher.id %}';
-	var create_member = function() {
+	$('.create_member').click(function(e) {
 		var params = {
 			action: 'create',
 			user_id: 1 // TODO: create textbox to get user_id
@@ -48,7 +48,7 @@
 				location.reload(true);
 			}
 		});
-	};
+	});
 
 	$('.update_member').click(function(e) {
 		e.preventDefault();
@@ -64,7 +64,7 @@
 		});
 	});
 
-	$('.delete_member').click(function() {
+	$('.delete_member').click(function(e) {
 		e.preventDefault();
 		var params = {
 			action: 'delete',

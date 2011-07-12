@@ -112,6 +112,10 @@ def publisher_team(request, id):
                 collaborators.remove(user)
                 publisher.collaborators = collaborators
                 publisher.save()
+
+                PublisherUserPermission.objects.filter(
+                    publisher=publisher, user=user).delete()
+                
                 return HttpResponse(json.dumps({'success': True}))
         return HttpResponse(json.dumps({'success': False}))
     return render(request, 'publication/publisher_team.html', {'publisher': publisher})
