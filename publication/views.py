@@ -1,5 +1,4 @@
 import datetime, time
-import os
 import simplejson as json
 
 from django.conf import settings
@@ -176,13 +175,15 @@ def create_book(request, publisher_id):
             book.save()
             book.save_categories(request.POST)
 
-            file_name = 'u' + str(request.user.id) + '_b' + str(book.id)
-            path = handle_uploaded_file(request.FILES['file_upload'],
-                file_name=file_name)
-            FileUpload.objects.create(uploader=request.user,
-                publication_type=Publication.BOOK,
-                publication_id=book.id,
-                path=path)
+            orig_file = request.FILES['file_upload']
+            pre_file_name = 'u' + str(request.user.id) + '_b' + str(book.id)
+            post_file_name = _get_post_file_name(orig_file.name, pre_file_name)
+            file_upload = FileUpload.objects.create(
+                                uploader=request.user,
+                                publication_type=Publication.BOOK,
+                                publication_id=book.id)
+            file_upload.uploaded_file.save(post_file_name, orig_file)
+
             return redirect('publication-show-book', publisher_id=publisher_id, book_id=book.id)
     else:
         form = BookForm()
@@ -206,11 +207,15 @@ def update_book(request, publisher_id, book_id):
                 file_upload = get_object_or_404(FileUpload,
                                     publication_type=Publication.BOOK,
                                     publication_id=book_id)
-                path = handle_uploaded_file(request.FILES['file_upload'],
-                            file_name=file_upload.file_name(), update=True)
-                file_upload.uploader = request.user # may another collaborator has updated
-                file_upload.path = path # may the file extension has been changed
-                file_upload.save() # save updated_at
+
+                orig_file = request.FILES['file_upload']
+                file_path = _get_post_file_name(orig_file.name, file_upload.file_name(), update=True)
+                # May another collaborator has updated
+                file_upload.uploader = request.user
+                # May the file extension has been changed
+                file_upload.uploaded_file.save(file_path, orig_file)
+                # Save updated_at
+                file_upload.save()
             return redirect('publication-show-book', publisher_id=publisher_id, book_id=book_id)
     else:
         form = BookForm(instance=book, initial={'book_id': book_id})
@@ -376,7 +381,7 @@ def create_issue(request, publisher_id, periodical_id):
             issue.save()
 
             file_name = 'u' + str(request.user.id) + '_p' + str(periodical.id) + '_s' + str(issue.id)
-            path = handle_uploaded_file(request.FILES['file_upload'], file_name=file_name)
+            path = _handle_uploaded_file(request.FILES['file_upload'], file_name=file_name)
             FileUpload.objects.create(uploader=request.user,
                 publication_type=Publication.PERIODICAL,
                 publication_id=issue.id,
@@ -405,7 +410,7 @@ def update_issue(request, publisher_id, periodical_id, issue_id):
                         publication_type=Publication.PERIODICAL,
                         publication_id=issue_id
                     )
-                    path = handle_uploaded_file(request.FILES['file_upload'],
+                    path = _handle_uploaded_file(request.FILES['file_upload'],
                                 file_name=file_upload.file_name(), update=True)
                 except FileUpload.DoesNotExist:
                     file_upload = FileUpload(
@@ -414,7 +419,7 @@ def update_issue(request, publisher_id, periodical_id, issue_id):
                     )
                     file_name = 'u' + str(request.user.id) + '_p' + str(periodical_id) + \
                                 '_s' + str(issue.id)
-                    path = handle_uploaded_file(request.FILES['file_upload'], file_name=file_name)
+                    path = _handle_uploaded_file(request.FILES['file_upload'], file_name=file_name)
                 file_upload.uploader = request.user # may another collaborator has updated
                 file_upload.path = path # may the file extension has been changed
                 file_upload.save() # save updated_at
@@ -519,28 +524,13 @@ def delete_issue(request, publisher_id, periodical_id, issue_id):
 
 # private ----------------------------------------------------------------------
 
-def handle_uploaded_file(f, file_name, update=False):
+def _get_post_file_name(orig_file_name, pre_file_name, update=False):
+    # Extract file extension from the uploaded file
+    file_extension = orig_file_name.split('.')[-1]
     if update:
-        timestamp = file_name.split('_')[-1] # extract timestamp from the file name
-        timestamp = timestamp.split('.')[0] # remove file extension
-        created_at = datetime.date.fromtimestamp(float(timestamp))
-        root_dir = str(created_at.year) + os.sep + str(created_at.month)
-        abs_dir_path = settings.MEDIA_ROOT + settings.PUBLICATION_DIR + root_dir
-        file_extension = f.name.split('.')[-1] # extract file extension from the uploaded file
-        file_name = file_name.split('.')[0] # remove current file extension
+        # Remove current file extension
+        file_name = pre_file_name.split('.')[0]
         file_path = file_name + '.' + file_extension
     else:
-        created_at = datetime.datetime.now()
-        root_dir = str(created_at.year) + os.sep + str(created_at.month)
-        abs_dir_path = settings.MEDIA_ROOT + settings.PUBLICATION_DIR + root_dir
-        if not os.path.exists(abs_dir_path):
-            os.makedirs(abs_dir_path)
-        file_extension = f.name.split('.')[-1]
-        file_path = file_name + '_' + str(int(time.time())) + '.' + file_extension
-
-    abs_file_path = abs_dir_path + os.sep + file_path
-    destination = open(abs_file_path, 'wb+')
-    for chunk in f.chunks():
-        destination.write(chunk)
-    destination.close()
-    return root_dir + os.sep + file_path
+        file_path = pre_file_name + '_' + str(int(time.time())) + '.' + file_extension
+    return file_path

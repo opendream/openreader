@@ -1,6 +1,10 @@
+import datetime, time
+
 from django.conf import settings
 from django.contrib.auth.models import Permission, User
 from django.db import models
+
+from private_files import PrivateFileField
 
 #from djangotoolbox.fields import EmbeddedModelField, ListField
 
@@ -23,7 +27,8 @@ PERIODICAL_TYPES = (
     (1, 'Magazine'),
 )
 
-# Manager ----------------------------------------------------------------------
+
+# Manager ---------------------------------------------------------------------
 
 class PublicationManager:
     def topic_of_contents(self, kwargs=None):
@@ -51,10 +56,10 @@ class PublicationManager:
                         publication_type=self.TYPE,
                         publication_id=self.id)
 
-    def file_path(self):
+    def file_url(self):
         try:
             f = FileUpload.objects.get(publication_type=self.TYPE, publication_id=self.id)
-            return settings.MEDIA_URL + settings.PUBLICATION_DIR + f.path
+            return f.uploaded_file.url
         except:
             return ''
 
@@ -65,7 +70,22 @@ class PublicationManager:
         return self.__class__.__name__
 
 
-# DB Models --------------------------------------------------------------------
+# Callback Methods ------------------------------------------------------------
+
+def is_downloadable(request, instance):
+    return True # TODO: implement
+
+def content_file_name(instance, file_name):
+    # Extract timestamp from the file name
+    timestamp = file_name.split('_')[-1]
+    # Remove file extension
+    timestamp = timestamp.split('.')[0]
+    # Convert timestamp to datetime object
+    created_at = datetime.date.fromtimestamp(float(timestamp))
+    return '/'.join([settings.PUBLICATION_DIR, str(created_at.year), str(created_at.month), file_name])
+
+
+# DB Models -------------------------------------------------------------------
 
 class Publisher(Loggable):
     owner = models.ForeignKey(User, related_name='owner')
@@ -149,10 +169,10 @@ class FileUpload(Loggable):
     uploader = models.ForeignKey(User)
     publication_type = models.IntegerField(choices=PUBLICATION_TYPES, db_index=True)
     publication_id = models.CharField(max_length=10, db_index=True)
-    path = models.CharField(max_length=255)
+    uploaded_file = PrivateFileField(upload_to=content_file_name, condition=is_downloadable)
 
     def file_name(self):
-        return self.path.split('/')[-1]
+        return self.uploaded_file.path.split('/')[-1]
 
 
 class TopicOfContents(Loggable):

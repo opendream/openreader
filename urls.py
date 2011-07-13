@@ -7,6 +7,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^private_files/', include('private_files.urls')),
     url(r'^accounts/', include('registration.urls')),
 )
 

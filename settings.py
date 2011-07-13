@@ -123,6 +123,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
 
     'registration',
+    'private_files',
 
     'openreader.common',
     'openreader.membership',
@@ -166,8 +167,12 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 LOGIN_URL = '/accounts/login/'
 LOGOUT_URL = '/accounts/logout/'
 
-# CUSTOM SETTINGS -------------------------------------------------------------
+# THIRD-PRATY MODULE SETTINGS -------------------------------------------------
 
 ACCOUNT_ACTIVATION_DAYS = 1
+FILE_PROTECTION_METHOD = 'basic' # basic, nginx, xsendfile
+
+# CUSTOM SETTINGS -------------------------------------------------------------
+
 PUBLICATION_DIR = 'publications/'
 SITE_TITLE = 'OpenReader'
