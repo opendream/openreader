@@ -12,7 +12,7 @@
 			until {{ issue.pending_until|date:"d F Y h:i A" }}
 		{% endif %}
 	</p>
-	<p>File: <a href="{{ issue.file_path }}">download</a></p>
+	<p>File: <a href="{{ issue.file_url }}">download</a></p>
 
 	<div class="toc">
 		{% for topic in issue.topic_of_contents %}

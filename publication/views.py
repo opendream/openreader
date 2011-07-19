@@ -176,7 +176,7 @@ def create_book(request, publisher_id):
             book.save_categories(request.POST)
 
             uploaded_file = request.FILES['file_upload']
-            pre_filename = 'u%d_b%d' % (request.user.id, book.id)
+            pre_filename = 'u%s_b%s' % (request.user.id, book.id)
             post_filename = _complete_filename(uploaded_file.name, pre_filename)
             file_upload = FileUpload.objects.create(
                                 uploader=request.user,
@@ -203,13 +203,20 @@ def update_book(request, publisher_id, book_id):
             form.save()
             book.save_categories(request.POST)
             if form.cleaned_data.has_key('file_upload'):
-                file_upload = get_object_or_404(FileUpload,
-                                    publication_type=Publication.BOOK,
-                                    publication_id=book_id)
-
                 uploaded_file = request.FILES['file_upload']
-                pre_filename = file_upload.uploaded_file.name
-                post_filename = _complete_filename(uploaded_file.name, pre_filename, update=True)
+                try:
+                    file_upload = FileUpload.objects.get(
+                                        publication_type=Publication.BOOK,
+                                        publication_id=book_id)
+                    pre_filename = file_upload.uploaded_file.name
+                    post_filename = _complete_filename(uploaded_file.name,
+                                                       pre_filename,
+                                                       update=True)
+                except FileUpload.DoesNotExist:
+                    file_upload = FileUpload(publication_type=Publication.BOOK,
+                                             publication_id=book_id)
+                    pre_filename = 'u%s_b%s' % (request.user.id, book_id)
+                    post_filename = _complete_filename(uploaded_file.name, pre_filename)
                 file_upload.uploader = request.user
                 file_upload.uploaded_file.save(post_filename, uploaded_file)
                 file_upload.save()
@@ -377,12 +384,13 @@ def create_issue(request, publisher_id, periodical_id):
             issue.periodical = periodical
             issue.save()
 
-            file_name = 'u' + str(request.user.id) + '_p' + str(periodical.id) + '_s' + str(issue.id)
-            path = _handle_uploaded_file(request.FILES['file_upload'], file_name=file_name)
-            FileUpload.objects.create(uploader=request.user,
-                publication_type=Publication.PERIODICAL,
-                publication_id=issue.id,
-                path=path)
+            uploaded_file = request.FILES['file_upload']
+            pre_filename = 'u%d_p%d_s%d' % (request.user.id, periodical.id, issue.id)
+            post_filename = _complete_filename(uploaded_file.name, pre_filename)
+            file_upload = FileUpload.objects.create(uploader=request.user,
+                                publication_type=Publication.PERIODICAL,
+                                publication_id=issue.id)
+            file_upload.uploaded_file.save(post_filename, uploaded_file)
             return redirect('publication-show-issue',
                         publisher_id=publisher_id, periodical_id=periodical_id, issue_id=issue.id)
     else:
@@ -402,24 +410,23 @@ def update_issue(request, publisher_id, periodical_id, issue_id):
         if form.is_valid():
             form.save()
             if form.cleaned_data.has_key('file_upload'):
+                uploaded_file = request.FILES['file_upload']
                 try:
                     file_upload = FileUpload.objects.get(
-                        publication_type=Publication.PERIODICAL,
-                        publication_id=issue_id
-                    )
-                    path = _handle_uploaded_file(request.FILES['file_upload'],
-                                file_name=file_upload.file_name(), update=True)
+                                        publication_type=Publication.PERIODICAL,
+                                        publication_id=issue_id)
+                    pre_filename = file_upload.uploaded_file.name
+                    post_filename = _complete_filename(uploaded_file.name,
+                                                       pre_filename,
+                                                       update=True)
                 except FileUpload.DoesNotExist:
-                    file_upload = FileUpload(
-                        publication_type=Publication.PERIODICAL,
-                        publication_id=issue_id
-                    )
-                    file_name = 'u' + str(request.user.id) + '_p' + str(periodical_id) + \
-                                '_s' + str(issue.id)
-                    path = _handle_uploaded_file(request.FILES['file_upload'], file_name=file_name)
-                file_upload.uploader = request.user # may another collaborator has updated
-                file_upload.path = path # may the file extension has been changed
-                file_upload.save() # save updated_at
+                    file_upload = FileUpload(publication_type=Publication.PERIODICAL,
+                                             publication_id=issue_id)
+                    pre_filename = 'u%s_p%s_s%s' % (request.user.id, periodical_id, issue_id)
+                    post_filename = _complete_filename(uploaded_file.name, pre_filename)
+                file_upload.uploader = request.user
+                file_upload.uploaded_file.save(post_filename, uploaded_file)
+                file_upload.save()
             return redirect('publication-show-issue',
                         publisher_id=publisher_id, periodical_id=periodical_id, issue_id=issue_id)
     else:
@@ -535,4 +542,4 @@ def _complete_filename(uploaded_filename, pre_filename, update=False):
     else:
         created_at = datetime.datetime.now()
         post_filename = '%s_%s.%s' % (pre_filename, created_at.strftime('%s'), file_extension)
-    return '%d/%d/%s' % (created_at.year, created_at.month, post_filename)
+    return '%s/%s/%s' % (created_at.year, created_at.month, post_filename)
