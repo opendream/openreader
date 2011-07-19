@@ -1,14 +1,24 @@
 {% extends 'base_authenticated.html' %}
 
 {% block head_title %}
-	{% if book_id %} Update Book {% else %} Create Book {% endif %}
+	{% if book %} Update Book {% else %} Create Book {% endif %}
 {% endblock %}
 
 {% block page_title %}
-	{% if book_id %} Update Book {% else %} Create Book {% endif %}
+	{% if book %} Update Book {% else %} Create Book {% endif %}
 {% endblock %}
 
-{% block main %}
+{% block meta %}
+	<div>
+		{% if book %}
+			{{ book.publisher.name }}
+		{% else %}
+			{{ publisher.name }}
+		{% endif %}
+	</div>
+{% endblock %}
+
+{% block content %}
 	<form method="POST" enctype="multipart/form-data">
 		{{ form.non_field_errors }}
 		<div>
@@ -38,7 +48,7 @@
 				<label for="category_{{ category.id }}">{{ category.name }}</label>
 			{% endfor %}
 		</div>
-		{% if book_id %}
+		{% if book %}
 			{{ form.book_id }}
 		{% endif %}
 		<input type="submit" value="Save" />

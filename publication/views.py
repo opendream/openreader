@@ -187,7 +187,9 @@ def create_book(request, publisher_id):
     else:
         form = BookForm()
     categories = Category.objects.all()
-    return render(request, 'publication/book_form.html', {'form': form, 'categories': categories})
+    publisher = get_object_or_404(Publisher, pk=publisher_id)
+    return render(request, 'publication/book_form.html',
+                {'form': form, 'publisher': publisher, 'categories': categories})
 
 @login_required
 def show_book(request, publisher_id, book_id):
@@ -228,7 +230,7 @@ def update_book(request, publisher_id, book_id):
     for category in book.categories.all():
         book_categories.append(category.id)
     return render(request, 'publication/book_form.html',
-                {'form': form, 'book_id': book_id, 'book_categories': book_categories, 
+                {'form': form, 'book': book, 'book_categories': book_categories, 
                  'categories': categories}) 
 
 @login_required

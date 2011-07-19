@@ -3,6 +3,12 @@
 {% block head_title %}Book: {{ book.title }}{% endblock %}
 {% block page_title %}Book: {{ book.title }}{% endblock %}
 
+{% block meta %}
+	<div>
+		{{ book.publisher.name }}
+	</div>
+{% endblock %}
+
 {% block content %}
 	<p>Title: {{ book.title }}</p>
 	<p>Author: {{ book.author }}</p>

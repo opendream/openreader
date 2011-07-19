@@ -3,6 +3,12 @@
 {% block head_title %}Issue Vol. {{ issue.issued_at|date:"j M Y" }}{% endblock %}
 {% block page_title %}Issue Vol. {{ issue.issued_at|date:"j M Y" }}{% endblock %}
 
+{% block meta %}
+	<div>
+		{{ issue.periodical.publisher.name }}
+	</div>
+{% endblock %}
+
 {% block content %}
 	<p>Title: {{ issue.periodical.title }}</p>
 	<p>

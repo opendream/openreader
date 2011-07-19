@@ -1,7 +1,7 @@
 {% extends 'base_authenticated.html' %}
 
 {% block head_title %}
-	{% if issue.id %}
+	{% if issue %}
 		Update Issue Vol. {{ issue.issued_at|date:"j M Y" }}
 	{% else %}
 		Create Issue of {{ periodical.title }}
@@ -9,14 +9,24 @@
 {% endblock %}
 
 {% block page_title %}
-	{% if issue.id %}
+	{% if issue %}
 		Update Issue Vol. {{ issue.issued_at|date:"j M Y" }}
 	{% else %}
 		Create Issue of {{ periodical.title }}
 	{% endif %}
 {% endblock %}
 
-{% block main %}
+{% block meta %}
+	<div>
+		{% if issue %}
+			{{ issue.periodical.publisher.name }}
+		{% else %}
+			{{ periodical.publisher.name }}
+		{% endif %}
+	</div>
+{% endblock %}
+
+{% block content %}
 	<form method="POST" enctype="multipart/form-data">
 		{{ form.non_field_errors }}
 		<div>
@@ -33,7 +43,7 @@
 			{{ form.file_upload.errors }}
 			{{ form.file_upload }}
 		</div>
-		{% if issue.id %}
+		{% if issue %}
 			{{ form.issue_id }}
 		{% endif %}
 		<input type="submit" value="Save" />

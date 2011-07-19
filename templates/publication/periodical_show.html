@@ -3,6 +3,12 @@
 {% block head_title %}Magazine: {{ periodical.title }}{% endblock %}
 {% block page_title %}Magazine: {{ periodical.title }}{% endblock %}
 
+{% block meta %}
+	<div>
+		{{ periodical.publisher.name }}
+	</div>
+{% endblock %}
+
 {% block content %}
 	{% for issue in periodical.issue_set.all %}
 		<div class="issue">
