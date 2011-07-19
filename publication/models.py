@@ -1,5 +1,3 @@
-import datetime, time
-
 from django.conf import settings
 from django.contrib.auth.models import Permission, User
 from django.db import models
@@ -75,15 +73,8 @@ class PublicationManager:
 def is_downloadable(request, instance):
     return True # TODO: implement
 
-def content_file_name(instance, file_name):
-    # Extract timestamp from the file name
-    timestamp = file_name.split('_')[-1]
-    # Remove file extension
-    timestamp = timestamp.split('.')[0]
-    # Convert timestamp to datetime object
-    created_at = datetime.date.fromtimestamp(float(timestamp))
-    return '/'.join([settings.PUBLICATION_DIR, str(created_at.year), str(created_at.month), file_name])
-
+def publication_media_dir(instance, filename):
+    return '/'.join([settings.PUBLICATION_DIR, filename])
 
 # DB Models -------------------------------------------------------------------
 
@@ -169,10 +160,7 @@ class FileUpload(Loggable):
     uploader = models.ForeignKey(User)
     publication_type = models.IntegerField(choices=PUBLICATION_TYPES, db_index=True)
     publication_id = models.CharField(max_length=10, db_index=True)
-    uploaded_file = PrivateFileField(upload_to=content_file_name, condition=is_downloadable)
-
-    def file_name(self):
-        return self.uploaded_file.path.split('/')[-1]
+    uploaded_file = PrivateFileField(upload_to=publication_media_dir, condition=is_downloadable)
 
 
 class TopicOfContents(Loggable):

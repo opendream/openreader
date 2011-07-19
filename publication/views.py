@@ -1,4 +1,4 @@
-import datetime, time
+import datetime
 import simplejson as json
 
 from django.conf import settings
@@ -175,20 +175,19 @@ def create_book(request, publisher_id):
             book.save()
             book.save_categories(request.POST)
 
-            orig_file = request.FILES['file_upload']
-            pre_file_name = 'u' + str(request.user.id) + '_b' + str(book.id)
-            post_file_name = _get_post_file_name(orig_file.name, pre_file_name)
+            uploaded_file = request.FILES['file_upload']
+            pre_filename = 'u%d_b%d' % (request.user.id, book.id)
+            post_filename = _complete_filename(uploaded_file.name, pre_filename)
             file_upload = FileUpload.objects.create(
                                 uploader=request.user,
                                 publication_type=Publication.BOOK,
                                 publication_id=book.id)
-            file_upload.uploaded_file.save(post_file_name, orig_file)
-
+            file_upload.uploaded_file.save(post_filename, uploaded_file)
             return redirect('publication-show-book', publisher_id=publisher_id, book_id=book.id)
     else:
         form = BookForm()
     categories = Category.objects.all()
-    return render(request, 'publication/book_form.html', {'form': form, 'categories': categories}) 
+    return render(request, 'publication/book_form.html', {'form': form, 'categories': categories})
 
 @login_required
 def show_book(request, publisher_id, book_id):
@@ -208,13 +207,11 @@ def update_book(request, publisher_id, book_id):
                                     publication_type=Publication.BOOK,
                                     publication_id=book_id)
 
-                orig_file = request.FILES['file_upload']
-                file_path = _get_post_file_name(orig_file.name, file_upload.file_name(), update=True)
-                # May another collaborator has updated
+                uploaded_file = request.FILES['file_upload']
+                pre_filename = file_upload.uploaded_file.name
+                post_filename = _complete_filename(uploaded_file.name, pre_filename, update=True)
                 file_upload.uploader = request.user
-                # May the file extension has been changed
-                file_upload.uploaded_file.save(file_path, orig_file)
-                # Save updated_at
+                file_upload.uploaded_file.save(post_filename, uploaded_file)
                 file_upload.save()
             return redirect('publication-show-book', publisher_id=publisher_id, book_id=book_id)
     else:
@@ -522,15 +519,20 @@ def manage_issue_toc(request, publisher_id, periodical_id, issue_id):
 def delete_issue(request, publisher_id, periodical_id, issue_id):
     get_object_or_404(Issue, pk=issue_id).delete()
 
-# private ----------------------------------------------------------------------
 
-def _get_post_file_name(orig_file_name, pre_file_name, update=False):
-    # Extract file extension from the uploaded file
-    file_extension = orig_file_name.split('.')[-1]
+# PRIVATE ---------------------------------------------------------------------
+
+def _complete_filename(uploaded_filename, pre_filename, update=False):
+    # Get original file extension
+    file_extension = uploaded_filename.split('.')[-1]
     if update:
+        file_paths = pre_filename.split('/')
+        created_at = datetime.datetime(int(file_paths[1]), int(file_paths[2]), 1)
         # Remove current file extension
-        file_name = pre_file_name.split('.')[0]
-        file_path = file_name + '.' + file_extension
+        filename = file_paths[3].split('.')[0]
+        # Concate new file extension
+        post_filename = '%s.%s' % (filename, file_extension)
     else:
-        file_path = pre_file_name + '_' + str(int(time.time())) + '.' + file_extension
-    return file_path
+        created_at = datetime.datetime.now()
+        post_filename = '%s_%s.%s' % (pre_filename, created_at.strftime('%s'), file_extension)
+    return '%d/%d/%s' % (created_at.year, created_at.month, post_filename)

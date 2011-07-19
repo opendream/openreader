@@ -174,5 +174,5 @@ FILE_PROTECTION_METHOD = 'basic' # basic, nginx, xsendfile
 
 # CUSTOM SETTINGS -------------------------------------------------------------
 
-PUBLICATION_DIR = 'publications/'
+PUBLICATION_DIR = 'publications'
 SITE_TITLE = 'OpenReader'
