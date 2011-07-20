@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ title }} | Home{% endblock %}
+{% block head_title %}Home{% endblock %}
 
 {% block main %}
+	{% if user.is_authenticated %}
+		<a href="{% url dashboard %}">Dashboard</a>
+	{% endif %}
 {% endblock %}
