@@ -1,0 +1,25 @@
+<VirtualHost *:80>
+	ServerName SERVER_NAME
+
+	Alias /media/ PROJECT_DIR/media/
+	Alias /static/ PROJECT_DIR/sitestatic/
+	Alias /favicon.ico PROJECT_DIR/sitestatic/img/favicon.ico
+
+	XSendFile on
+
+	WSGIDaemonProcess PROJECT_NAME user=www-data group=www-data threads=1 processes=3
+	WSGIProcessGroup PROJECT_NAME 
+	WSGIScriptAlias / PID_DIR/django.wsgi
+
+	<Directory PROJECT_DIR/media/publications>
+		Order deny,allow
+		Deny from all
+	</Directory>
+
+	# debug, info, notice, warn, error, crit, alert, emerg
+	LogLevel warn
+	ErrorLog PROJECT_DIR/logs/error.log
+
+	SetEnvIf Request_URI "\.(jpg|xml|png|gif|ico|js|css|swf|js?.|css?.)$" DontLog
+	CustomLog PROJECT_DIR/logs/access.log combined Env=!DontLog
+</VirtualHost>

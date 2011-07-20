@@ -1,0 +1,17 @@
+import os
+import sys
+
+import django
+import django.core.handlers.wsgi
+
+django_path = os.path.dirname(django.__file__)
+project_path = 'PROJECT_DIR'
+project_parent_path = os.path.dirname(project_path)
+
+sys.path.append(django_path)
+sys.path.append(project_path) # for applications that use relative module path (import without project name)
+sys.path.append(project_parent_path) # for WSGI import
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'PROJECT_NAME.settings'
+
+application = django.core.handlers.wsgi.WSGIHandler()
