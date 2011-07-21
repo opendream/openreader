@@ -30,7 +30,7 @@ install_required_packages() {
 		tar -C /tmp -zxf mod_wsgi-3.3.tar.gz
 		cd /tmp/mod_wsgi-3.3
 		./configure && make && make install
-		echo "LoadModule wsgi_module /usr/lib/apache2/modules/mod_wsgi.so" > $APACHE_MOD_DIR/wsgi.load
+		echo "LoadModule wsgi_module /usr/lib/apache2/modules/mod_wsgi.so" >$APACHE_MOD_DIR/wsgi.load
 		a2enmod wsgi
 		apache2ctl restart
 		cd -
@@ -51,9 +51,16 @@ install_django_and_required_modules() {
 	# Install Django
 	if ! which django-admin.py; then
 		pip install django
+		pip install django-registration
+		pip install django-private-files
+	else
+		django_version=`django-admin.py --version`
+		if [ "$django_version" \< '1.3' ]; then
+			pip install --upgrade django
+			pip install --upgrade django-registration
+			pip install --upgrade django-private-files
+		fi
 	fi
-	pip install django-registration
-	pip install django-private-files
 }
 
 deploy_configuration_files() {
