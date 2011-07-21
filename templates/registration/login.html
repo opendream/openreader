@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
-{% block head_title %}Log in{% endblock %}
-{% block page_title %}Log in{% endblock %}
+{% block head_title %}Login{% endblock %}
+{% block page_title %}Login{% endblock %}
 
 {% block main %}
 	<form method="POST">
@@ -20,5 +20,6 @@
 			<input type="submit" value="Log in" />
 		</div>
 		{% csrf_token %}
+		<a href="{% url auth_password_reset %}">Forgot your password?</a>
 	</form>
 {% endblock %}

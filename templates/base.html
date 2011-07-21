@@ -11,11 +11,15 @@
 	</head>
 	<body>
 		<div class="header">
+			<ul>
+				<li><a href="/">Home</a></li>
 			{% if user.is_authenticated %}
-				Welcome, {{ user.username }}. <a href="/accounts/logout/">Log out</a>
+				<li>Welcome, {{ user.username }}. <a href="{% url auth_logout %}">Log out</a></li>
 			{% else %}
-				<a href="/accounts/login/">Log in</a>
+				<li><a href="{% url registration_register %}">Register</a></li>
+				<li><a href="{% url auth_login %}">Log in</a></li>
 			{% endif %}
+			</ul>
 		</div>
 		<div class="main">
 			{% block section %}{% endblock %}
