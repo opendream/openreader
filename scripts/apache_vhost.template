@@ -6,12 +6,13 @@
 	Alias /favicon.ico PROJECT_DIR/sitestatic/img/favicon.ico
 
 	XSendFile on
+	XSendFilePath FILE_UPLOAD_DIR
 
 	WSGIDaemonProcess PROJECT_NAME user=www-data group=www-data threads=1 processes=3
 	WSGIProcessGroup PROJECT_NAME 
 	WSGIScriptAlias / PID_DIR/django.wsgi
 
-	<Directory PROJECT_DIR/media/publications>
+	<Directory FILE_UPLOAD_DIR>
 		Order deny,allow
 		Deny from all
 	</Directory>

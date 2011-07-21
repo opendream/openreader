@@ -10,6 +10,7 @@ APACHE_SITE_DIR=/etc/apache2/sites-available
 APACHE_MOD_DIR=/etc/apache2/mods-available
 PID_DIR=/var/run/apache2
 PROJECT_DIR=`dirname $PWD`
+FILE_UPLOAD_DIR=$PROJECT_DIR/media/publications
 
 install_required_packages() {
 	# Check installed modules
@@ -64,7 +65,7 @@ install_django_and_required_modules() {
 }
 
 deploy_configuration_files() {
-	sed "s|PROJECT_DIR|$PROJECT_DIR|g; s|PROJECT_NAME|$PROJECT_NAME|g; s|SERVER_NAME|$SERVER_NAME|g; s|PID_DIR|$PID_DIR|g" <apache_vhost.template >$APACHE_SITE_DIR/$PROJECT_NAME
+	sed "s|PROJECT_DIR|$PROJECT_DIR|g; s|PROJECT_NAME|$PROJECT_NAME|g; s|SERVER_NAME|$SERVER_NAME|g; s|PID_DIR|$PID_DIR|g; s|FILE_UPLOAD_DIR|$FILE_UPLOAD_DIR|g" <apache_vhost.template >$APACHE_SITE_DIR/$PROJECT_NAME
 	sed "s|PROJECT_NAME|$PROJECT_NAME|g; s|PROJECT_DIR|$PROJECT_DIR|g" <django.wsgi.template >$PID_DIR/django.wsgi
 	if [ ! -d ../logs ]; then
 		mkdir ../logs
