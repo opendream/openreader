@@ -15,6 +15,10 @@
 			{% endif %}<br />
 			<a href="{% url publication-update-book publisher.id book.id %}">Edit Book</a>
 		</div>
+		<div class="statistic">
+			Last Week Downloaded: {{ book.last_week_downloads }}<br />
+			Total Downloaded: {{ book.total_downloads }}
+		</div>
 	{% endfor %}
 {% endblock %}
 

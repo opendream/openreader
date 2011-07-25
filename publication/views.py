@@ -12,7 +12,7 @@ from publication.forms import BookForm, CategoryForm, IssueForm, PeriodicalForm,
                               PublisherForm
 from publication.models import Book, Category, FileUpload, Issue, Periodical, \
                                Publication, Publisher, PublisherUserPermission, \
-                               TopicOfContents \
+                               TopicOfContents
 
 
 @login_required

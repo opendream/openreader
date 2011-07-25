@@ -30,6 +30,12 @@
 			{{ category.name }}
 		{% endfor %}
 	</div>
+
+	<div class="statistic">
+		Last Week Downloaded: {{ book.last_week_downloads }}<br />
+		Last Month Downloaded: {{ book.last_month_downloads }}<br />
+		Total Downloaded: {{ book.total_downloads }}
+	</div>
 {% endblock %}
 
 {% block navigation %}

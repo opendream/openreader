@@ -29,6 +29,12 @@
 			</div>
 		{% endfor %}
 	</div>
+
+	<div class="statistic">
+		Last Week Downloaded: {{ issue.last_week_downloads }}<br />
+		Last Month Downloaded: {{ issue.last_month_downloads }}<br />
+		Total Downloaded: {{ issue.total_downloads }}
+	</div>
 {% endblock %}
 
 {% block navigation %}

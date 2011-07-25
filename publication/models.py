@@ -67,6 +67,17 @@ class PublicationManager:
     def instance_of(self):
         return self.__class__.__name__
 
+    def total_downloads(self):
+        from statistic.models import CountedFileDownloadsManager # fix circular imports
+        return CountedFileDownloadsManager(obj=self).total_downloads()
+
+    def last_week_downloads(self):
+        from statistic.models import CountedFileDownloadsManager # fix circular imports
+        return CountedFileDownloadsManager(obj=self).last_week_downloads()
+
+    def last_month_downloads(self):
+        from statistic.models import CountedFileDownloadsManager # fix circular imports
+        return CountedFileDownloadsManager(obj=self).last_month_downloads()
 
 # Callback Methods ------------------------------------------------------------
 
@@ -75,6 +86,7 @@ def is_downloadable(request, instance):
 
 def publication_media_dir(instance, filename):
     return '/'.join([settings.PUBLICATION_DIR, filename])
+
 
 # DB Models -------------------------------------------------------------------
 
