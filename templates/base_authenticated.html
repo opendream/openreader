@@ -7,12 +7,14 @@
 {% block section %}
 	{% block meta %}{% endblock %}
 	{% block tabs %}
-		<ul>
-			<li><a href="{% url publication-publisher-dashboard 1 %}">Dashboard</a></li>
-			<li><a href="{% url publication-index-periodical 1 %}">Magazines</a></li>
-			<li><a href="{% url publication-index-book 1 %}">Books</a></li>
-			<li><a href="{% url publication-update-publisher 1 %}">Manage Publisher</a></li>
-		</ul>
+		{% if publisher %}
+			<ul>
+				<li><a href="{% url publication-publisher-dashboard publisher.id %}">Dashboard</a></li>
+				<li><a href="{% url publication-index-periodical publisher.id %}">Magazines</a></li>
+				<li><a href="{% url publication-index-book publisher.id %}">Books</a></li>
+				<li><a href="{% url publication-update-publisher publisher.id %}">Manage Publisher</a></li>
+			</ul>
+		{% endif %}
 	{% endblock %}
 {% endblock %}
 
